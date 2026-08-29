@@ -1,0 +1,225 @@
+:root {
+    --sidebar-width: 240px;
+}
+
+body {
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: #1a1f36;
+    position: fixed;
+    top: 0; left: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    z-index: 100;
+}
+
+.sidebar .brand {
+    width: 100%;
+    color: #fff;
+    padding: 0 10px 1.5rem;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.sidebar .brand-logo {
+    width: 100%;
+    max-width: 220px;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.sidebar .nav-link {
+    color: rgba(255,255,255,.65);
+    padding: .65rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    font-size: .92rem;
+    transition: all .2s;
+    text-decoration: none;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    border-left: 3px solid #7c6ff7;
+}
+
+.sidebar .nav-section {
+    color: rgba(255,255,255,.35);
+    font-size: .7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 1.2rem 1.5rem .4rem;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 2rem;
+    min-height: 100vh;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.page-title {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #1a1f36;
+}
+
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.06);
+}
+
+.table thead th {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: #6b7280;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.badge-status {
+    font-size: .75rem;
+    padding: .3rem .7rem;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+.badge-deferido   { background: #d1fae5; color: #065f46; }
+.badge-indeferido { background: #fee2e2; color: #991b1b; }
+.badge-pendente   { background: #fef3c7; color: #92400e; }
+.badge-arquivado  { background: #e5e7eb; color: #374151; }
+
+.btn-primary {
+    background: #7c6ff7;
+    border-color: #7c6ff7;
+}
+.btn-primary:hover {
+    background: #6558e0;
+    border-color: #6558e0;
+}
+
+.prazo-badge {
+    font-size: .78rem;
+    padding: .25rem .65rem;
+    border-radius: 20px;
+}
+
+.prazo-vencido   { background: #fee2e2; color: #991b1b; }
+.prazo-urgente   { background: #fef3c7; color: #92400e; }
+.prazo-ok        { background: #d1fae5; color: #065f46; }
+.prazo-notif     { background: #e0e7ff; color: #3730a3; }
+
+.metric-card {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.metric-card > div:last-child {
+    width: 100%;
+    text-align: center;
+}
+
+.metric-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    font-size: 1.45rem;
+}
+
+.metric-value {
+    width: 100%;
+    font-size: 1.7rem;
+    line-height: 1;
+    font-weight: 700;
+    color: #1a1f36;
+    margin-bottom: .35rem;
+    text-align: center;
+}
+
+.summary-card {
+    padding: 1.1rem 1.25rem;
+    border-left: 4px solid !important;
+}
+
+.summary-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.notification-unread {
+    background: #f5f3ff;
+    border-left: 4px solid #7c6ff7;
+}
+
+.notification-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: grid;
+    place-items: center;
+    font-size: 1.15rem;
+    flex: 0 0 auto;
+}
+
+.report-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: #ede9fe;
+    color: #6d5dfc;
+    display: grid;
+    place-items: center;
+    font-size: 1.35rem;
+    margin-bottom: 1rem;
+}
+
+.btn-group form {
+    display: inline-flex;
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        min-height: auto;
+    }
+
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+
+    .topbar {
+        align-items: flex-start;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+}
