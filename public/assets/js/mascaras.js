@@ -78,9 +78,20 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll(
         'input[name="data_deposito"], ' +
         'input[name="data_concessao"], ' +
-        'input[name="data_vencimento"]'
+        'input[name="data_vencimento"], ' +
+        'input[name="data_inicial"], ' +
+        'input[name="data_final"]'
     ).forEach((campo) => {
+        mascaraData(campo);
         campo.addEventListener('input', () => mascaraData(campo));
+    });
+
+    document.querySelectorAll('input[name="telefone"]').forEach((campo) => {
+        mascaraTelefone(campo);
+        campo.setAttribute('inputmode', 'tel');
+        campo.setAttribute('maxlength', '15');
+        campo.setAttribute('placeholder', '(00) 00000-0000');
+        campo.addEventListener('input', () => mascaraTelefone(campo));
     });
 });
 

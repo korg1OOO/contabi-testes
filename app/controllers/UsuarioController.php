@@ -7,6 +7,7 @@ use app\repositories\UsuarioRepository;
 use app\services\ExclusaoDadosService;
 use app\helpers\Validador;
 use RuntimeException;
+use PDOException;
 
 class UsuarioController extends Controller
 {
@@ -27,6 +28,7 @@ class UsuarioController extends Controller
         }
 
         $data['usuarios'] = $this->repository->getAll();
+        $data['csrf_token'] = $this->csrfToken();
         $this->view('usuarios/usuario_list', $data);
     }
 
@@ -39,11 +41,19 @@ class UsuarioController extends Controller
             return;
         }
 
-        $this->view('usuarios/usuario_create');
+        $this->view('usuarios/usuario_create', ['csrf_token' => $this->csrfToken()]);
     }
 
     public function salvar()
     {
+        $this->autenticacaoRequired();
+
+        if (!$this->isAdmin()) {
+            $this->negarAcesso();
+        }
+
+        $this->validarCsrf();
+
         $erros = [];
         $old = $_POST;
 
@@ -53,11 +63,13 @@ class UsuarioController extends Controller
         $telefone = trim($_POST['telefone'] ?? '');
         $senha    = $_POST['senha'] ?? '';
         $perfil   = $_POST['perfil'] ?? 'consultor';
+        $perfisPermitidos = ['administrador', 'consultor', 'agente_pi'];
 
         if (empty($nome)) $erros['nome'] = 'Nome é obrigatório';
         if (!Validador::cpfValido($cpf)) $erros['cpf'] = 'CPF inválido';
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros['email'] = 'E-mail inválido';
         if (empty($senha)) $erros['senha'] = 'Senha é obrigatória';
+        if (!in_array($perfil, $perfisPermitidos, true)) $erros['perfil'] = 'Perfil inválido';
 
         if (!empty($senha)) {
             if (strlen($senha) < 8) $erros['senha'] = 'Mínimo 8 caracteres';
@@ -69,19 +81,31 @@ class UsuarioController extends Controller
         if (!empty($erros)) {
             $data['erros'] = $erros;
             $data['old'] = $old;
+            $data['csrf_token'] = $this->csrfToken();
             $this->view('usuarios/usuario_create', $data);
             return;
         }
 
         $usuario = new Usuario(0, $nome, $cpf, $email ?: null, $telefone ?: null, $senha, $perfil);
 
-        if ($this->repository->save($usuario)) {
-            $this->redirect(URL_BASE . '/login?cadastro=sucesso');
-        } else {
-            $data['erros']['geral'] = 'Erro ao salvar usuário';
-            $data['old'] = $old;
-            $this->view('usuarios/usuario_create', $data);
+        try {
+            if ($this->repository->save($usuario)) {
+                $this->redirect(URL_BASE . '/usuarios?cadastro=sucesso');
+            }
+
+            $data['erros']['geral'] = 'Erro ao salvar usuário.';
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $data['erros']['cpf'] = 'Este CPF já está cadastrado.';
+            } else {
+                error_log($e->getMessage());
+                $data['erros']['geral'] = 'Erro ao salvar usuário.';
+            }
         }
+
+        $data['old'] = $old;
+        $data['csrf_token'] = $this->csrfToken();
+        $this->view('usuarios/usuario_create', $data);
     }
 
     public function editar()
@@ -145,13 +169,18 @@ class UsuarioController extends Controller
         $this->autenticacaoRequired();
 
         if (!$this->isAdmin()) {
-            $this->redirect(URL_BASE . '/dashboard');
-            return;
+            $this->negarAcesso();
         }
 
-        $id = (int)($_GET['id'] ?? 0);
+        $this->validarCsrf();
+        $id = (int)($_POST['id'] ?? 0);
+
+        if ($id <= 0 || !$this->repository->findById($id)) {
+            $this->redirect(URL_BASE . '/usuarios');
+        }
+
         $this->repository->delete($id);
-        $this->redirect(URL_BASE . '/usuarios');
+        $this->redirect(URL_BASE . '/usuarios?excluido=1');
     }
 
     public function excluirDados()
@@ -217,12 +246,22 @@ class UsuarioController extends Controller
 
         $usuario = new Usuario(0, $nome, $cpf, $email ?: null, $telefone ?: null, $senha, 'consultor');
 
-        if ($this->repository->save($usuario)) {
-            $this->redirect(URL_BASE . '/login?cadastro=sucesso');
-        } else {
-            $data['erros']['geral'] = 'Este CPF já está cadastrado.';
-            $data['old'] = $old;
-            $this->view('usuarios/register', $data);
+        try {
+            if ($this->repository->save($usuario)) {
+                $this->redirect(URL_BASE . '/login?cadastro=sucesso');
+            }
+
+            $data['erros']['geral'] = 'Não foi possível concluir o cadastro.';
+        } catch (PDOException $e) {
+            if ($e->getCode() === '23000') {
+                $data['erros']['cpf'] = 'Este CPF já está cadastrado.';
+            } else {
+                error_log($e->getMessage());
+                $data['erros']['geral'] = 'Não foi possível concluir o cadastro.';
+            }
         }
+
+        $data['old'] = $old;
+        $this->view('usuarios/register', $data);
     }
 }

@@ -53,6 +53,21 @@ class DocumentoController extends Controller
         );
     }
 
+    $marcaId = $this->idOuNull($_POST['marca_id'] ?? null);
+    $patenteId = $this->idOuNull($_POST['patente_id'] ?? null);
+    $clienteId = $this->idOuNull($_POST['cliente_id'] ?? null);
+    $usuarioId = $this->isAdmin() ? null : (int)$this->usuarioLogado()['id'];
+
+    if ($clienteId !== null && !(new ClienteRepository())->getClienteById($clienteId, $usuarioId)) {
+        $this->negarAcesso();
+    }
+    if ($marcaId !== null && !(new MarcaRepository())->findById($marcaId, $usuarioId)) {
+        $this->negarAcesso();
+    }
+    if ($patenteId !== null && !(new PatenteRepository())->findById($patenteId, $usuarioId)) {
+        $this->negarAcesso();
+    }
+
     $nomeSalvo = null;
 
     try {
@@ -63,14 +78,11 @@ class DocumentoController extends Controller
         );
 
         $salvou = $this->repository->salvar([
-            'marca_id' =>
-                $this->idOuNull($_POST['marca_id'] ?? null),
+            'marca_id' => $marcaId,
 
-            'patente_id' =>
-                $this->idOuNull($_POST['patente_id'] ?? null),
+            'patente_id' => $patenteId,
 
-            'cliente_id' =>
-                $this->idOuNull($_POST['cliente_id'] ?? null),
+            'cliente_id' => $clienteId,
 
             'nome_arquivo' =>
                 basename($_FILES['arquivo']['name']),

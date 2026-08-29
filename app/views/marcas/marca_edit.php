@@ -80,5 +80,6 @@
         </div>
     </div>
 </div>
+<script src="<?= URL_BASE ?>/assets/js/mascaras.js"></script>
 </body>
 </html>

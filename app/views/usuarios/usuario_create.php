@@ -26,6 +26,7 @@
     <div class="card col-lg-8">
         <div class="card-body p-4">
             <form action="<?= URL_BASE ?>/usuarios/salvar" method="post">
+                <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nome Completo</label>
@@ -68,10 +69,13 @@
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Perfil</label>
                         <select name="perfil" class="form-select" required>
-                            <option value="consultor">Consultor</option>
-                            <option value="agente_pi">Agente de PI</option>
-                            <option value="administrador">Administrador</option>
+                            <option value="consultor" <?= (($old['perfil'] ?? 'consultor') === 'consultor') ? 'selected' : '' ?>>Consultor</option>
+                            <option value="agente_pi" <?= (($old['perfil'] ?? '') === 'agente_pi') ? 'selected' : '' ?>>Agente de PI</option>
+                            <option value="administrador" <?= (($old['perfil'] ?? '') === 'administrador') ? 'selected' : '' ?>>Administrador</option>
                         </select>
+                        <?php if(isset($erros['perfil'])): ?>
+                            <div class="text-danger small"><?= htmlspecialchars($erros['perfil']) ?></div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -95,5 +99,6 @@ function mascaraCPF(campo) {
     campo.value = v;
 }
 </script>
+<script src="<?= URL_BASE ?>/assets/js/mascaras.js"></script>
 </body>
 </html>

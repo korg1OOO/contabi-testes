@@ -10,6 +10,9 @@ body {
 .sidebar {
     width: var(--sidebar-width);
     min-height: 100vh;
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     background: #1a1f36;
     position: fixed;
     top: 0; left: 0;
@@ -210,6 +213,8 @@ body {
         position: static;
         width: 100%;
         min-height: auto;
+        height: auto;
+        overflow: visible;
     }
 
     .main-content {

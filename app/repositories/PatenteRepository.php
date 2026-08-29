@@ -119,6 +119,20 @@ class PatenteRepository
         return $stmt->fetch() ?: null;
     }
 
+    public function processoExisteParaUsuario(string $numeroProcesso, int $usuarioId, ?int $ignorarId = null): bool
+    {
+        $sql = 'SELECT 1 FROM patentes p INNER JOIN clientes c ON p.cliente_id = c.id WHERE p.numero_processo = :numero_processo AND c.usuario_id = :usuario_id';
+        $params = ['numero_processo' => $numeroProcesso, 'usuario_id' => $usuarioId];
+        if ($ignorarId !== null) {
+            $sql .= ' AND p.id <> :ignorar_id';
+            $params['ignorar_id'] = $ignorarId;
+        }
+        $sql .= ' LIMIT 1';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return (bool)$stmt->fetchColumn();
+    }
+
     public function getConnection(): PDO
     {
         return $this->conn;

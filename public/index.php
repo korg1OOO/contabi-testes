@@ -45,7 +45,7 @@ $router->get('/usuarios/cadastrar', 'UsuarioController@cadastrar');
 $router->post('/usuarios/salvar', 'UsuarioController@salvar');
 $router->get('/usuarios/editar', 'UsuarioController@editar');
 $router->post('/usuarios/atualizar', 'UsuarioController@atualizar');
-$router->get('/usuarios/excluir', 'UsuarioController@excluir');
+$router->post('/usuarios/excluir', 'UsuarioController@excluir');
 $router->get('/minha-conta/excluir-dados', 'UsuarioController@excluirDados');
 $router->post('/minha-conta/excluir-dados', 'UsuarioController@confirmarExclusaoDados');
 $router->get('/prazos', 'PrazoController@index');

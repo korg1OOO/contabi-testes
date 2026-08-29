@@ -65,11 +65,13 @@
                                            class="btn btn-sm btn-outline-secondary">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <a href="<?= URL_BASE ?>/usuarios/excluir?id=<?= $u['id'] ?>" 
-                                           class="btn btn-sm btn-outline-danger"
-                                           onclick="return confirm('Tem certeza que deseja excluir este usuário?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <form action="<?= URL_BASE ?>/usuarios/excluir" method="post" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?')">
+                                            <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                            <input type="hidden" name="id" value="<?= (int)$u['id'] ?>">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

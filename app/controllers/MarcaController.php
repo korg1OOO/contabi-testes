@@ -43,8 +43,16 @@ class MarcaController extends Controller
         $this->validarCsrf();
         $usuarioId = $this->isAdmin() ? null : (int)$this->usuarioLogado()['id'];
         $marcaData = $this->dadosFormulario();
-        if (!(new ClienteRepository())->getClienteById($marcaData['cliente_id'], $usuarioId)) {
+        $cliente = (new ClienteRepository())->getClienteById($marcaData['cliente_id'], $usuarioId);
+        if (!$cliente) {
             $this->negarAcesso();
+        }
+        if ($this->repository->processoExisteParaUsuario($marcaData['numero_processo'], (int)$cliente['usuario_id'])) {
+            $data['erros']['geral'] = 'Este número de processo já está cadastrado na sua carteira.';
+            $data['clientes'] = (new ClienteRepository())->getClientes($usuarioId);
+            $data['csrf_token'] = $this->csrfToken();
+            $this->view('marcas/marca_create', $data);
+            return;
         }
         try {
             $conn = $this->repository->getConnection();
@@ -87,8 +95,16 @@ class MarcaController extends Controller
         if (!$this->repository->findById($marcaData['id'], $usuarioId)) {
             $this->negarAcesso();
         }
-        if (!(new ClienteRepository())->getClienteById($marcaData['cliente_id'], $usuarioId)) {
+        $cliente = (new ClienteRepository())->getClienteById($marcaData['cliente_id'], $usuarioId);
+        if (!$cliente) {
             $this->negarAcesso();
+        }
+        if ($this->repository->processoExisteParaUsuario($marcaData['numero_processo'], (int)$cliente['usuario_id'], $marcaData['id'])) {
+            $data['marca'] = $marcaData;
+            $data['erros']['geral'] = 'Este número de processo já está cadastrado na sua carteira.';
+            $data['csrf_token'] = $this->csrfToken();
+            $this->view('marcas/marca_edit', $data);
+            return;
         }
         try {
             $conn = $this->repository->getConnection();

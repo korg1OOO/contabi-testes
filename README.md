@@ -34,5 +34,3 @@ E testar pdf com php -r "require 'vendor/autoload.php'; echo class_exists('Smalo
 php -S localhost:8080 -t public public/index.php
 
 Abrir em http://localhost:8080
-
-Só alegria

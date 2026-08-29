@@ -43,8 +43,16 @@ class PatenteController extends Controller
         $this->validarCsrf();
         $usuarioId = $this->isAdmin() ? null : (int)$this->usuarioLogado()['id'];
         $patenteData = $this->dadosFormulario();
-        if (!(new ClienteRepository())->getClienteById($patenteData['cliente_id'], $usuarioId)) {
+        $cliente = (new ClienteRepository())->getClienteById($patenteData['cliente_id'], $usuarioId);
+        if (!$cliente) {
             $this->negarAcesso();
+        }
+        if ($this->repository->processoExisteParaUsuario($patenteData['numero_processo'], (int)$cliente['usuario_id'])) {
+            $data['erros']['geral'] = 'Este número de processo já está cadastrado na sua carteira.';
+            $data['clientes'] = (new ClienteRepository())->getClientes($usuarioId);
+            $data['csrf_token'] = $this->csrfToken();
+            $this->view('patentes/patente_create', $data);
+            return;
         }
         try {
             $conn = $this->repository->getConnection();
@@ -87,8 +95,16 @@ class PatenteController extends Controller
         if (!$this->repository->findById($patenteData['id'], $usuarioId)) {
             $this->negarAcesso();
         }
-        if (!(new ClienteRepository())->getClienteById($patenteData['cliente_id'], $usuarioId)) {
+        $cliente = (new ClienteRepository())->getClienteById($patenteData['cliente_id'], $usuarioId);
+        if (!$cliente) {
             $this->negarAcesso();
+        }
+        if ($this->repository->processoExisteParaUsuario($patenteData['numero_processo'], (int)$cliente['usuario_id'], $patenteData['id'])) {
+            $data['patente'] = $patenteData;
+            $data['erros']['geral'] = 'Este número de processo já está cadastrado na sua carteira.';
+            $data['csrf_token'] = $this->csrfToken();
+            $this->view('patentes/patente_edit', $data);
+            return;
         }
         try {
             $conn = $this->repository->getConnection();

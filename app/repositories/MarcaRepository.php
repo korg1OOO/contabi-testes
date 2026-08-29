@@ -115,6 +115,20 @@ class MarcaRepository
         return $stmt->fetch() ?: null;
     }
 
+    public function processoExisteParaUsuario(string $numeroProcesso, int $usuarioId, ?int $ignorarId = null): bool
+    {
+        $sql = 'SELECT 1 FROM marcas m INNER JOIN clientes c ON m.cliente_id = c.id WHERE m.numero_processo = :numero_processo AND c.usuario_id = :usuario_id';
+        $params = ['numero_processo' => $numeroProcesso, 'usuario_id' => $usuarioId];
+        if ($ignorarId !== null) {
+            $sql .= ' AND m.id <> :ignorar_id';
+            $params['ignorar_id'] = $ignorarId;
+        }
+        $sql .= ' LIMIT 1';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return (bool)$stmt->fetchColumn();
+    }
+
     public function getConnection(): PDO
     {
         return $this->conn;

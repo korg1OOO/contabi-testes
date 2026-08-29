@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS clientes (
 CREATE TABLE IF NOT EXISTS marcas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
-    numero_processo VARCHAR(30) NOT NULL UNIQUE,        
+    numero_processo VARCHAR(30) NOT NULL,               
     titular VARCHAR(200) NOT NULL,
     classe_nice INT NOT NULL,                           
     status VARCHAR(50) NOT NULL DEFAULT 'Em análise',   
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS marcas (
 CREATE TABLE IF NOT EXISTS patentes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     cliente_id INT NOT NULL,
-    numero_processo VARCHAR(30) NOT NULL UNIQUE,
+    numero_processo VARCHAR(30) NOT NULL,
     titular VARCHAR(200) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'Depositada',
     data_deposito DATE NOT NULL,
