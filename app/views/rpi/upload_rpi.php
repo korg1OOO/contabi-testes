@@ -49,6 +49,38 @@
         rel="stylesheet"
         href="<?= URL_BASE_CSS ?>/style.css"
     >
+
+    <style>
+        .rpi-processing-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(2px);
+        }
+
+        .rpi-processing-overlay.show {
+            display: flex;
+        }
+
+        .rpi-processing-card {
+            width: min(460px, 100%);
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+            text-align: center;
+        }
+
+        .rpi-processing-spinner {
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
 </head>
 
 <body>
@@ -122,6 +154,7 @@
                     </div>
 
                     <form
+                        id="form-rpi-importacao"
                         method="POST"
                         action="<?= URL_BASE ?>/rpi/importar"
                         enctype="multipart/form-data"
@@ -174,6 +207,7 @@
                                 </label>
 
                                 <input
+                                    id="arquivo-rpi"
                                     type="file"
                                     name="arquivo_rpi"
                                     class="form-control"
@@ -243,6 +277,7 @@
                             </a>
 
                             <button
+                                id="btn-importar-rpi"
                                 type="submit"
                                 class="btn btn-primary"
                             >
@@ -260,37 +295,80 @@
 
 </div>
 
+<div
+    id="rpi-processing-overlay"
+    class="rpi-processing-overlay"
+    aria-hidden="true"
+>
+    <div class="rpi-processing-card" role="status" aria-live="polite">
+        <div
+            class="spinner-border text-primary rpi-processing-spinner"
+            aria-hidden="true"
+        ></div>
+
+        <h5 class="mt-4 mb-2">
+            Importando RPI...
+        </h5>
+
+        <p class="mb-2">
+            Enviando e processando o arquivo.
+        </p>
+
+        <p class="text-muted small mb-0">
+            Dependendo do tamanho da revista, esse processo pode levar alguns minutos.
+            Não feche nem atualize esta página.
+        </p>
+    </div>
+</div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const campoData = document.getElementById('data_publicacao');
+    const formulario = document.getElementById('form-rpi-importacao');
+    const botaoImportar = document.getElementById('btn-importar-rpi');
+    const overlay = document.getElementById('rpi-processing-overlay');
 
-    if (!campoData) {
-        return;
+    if (campoData) {
+        campoData.addEventListener('input', function () {
+            let valor = this.value.replace(/\D/g, '');
+
+            if (valor.length > 8) {
+                valor = valor.substring(0, 8);
+            }
+
+            if (valor.length > 4) {
+                valor =
+                    valor.substring(0, 2)
+                    + '/'
+                    + valor.substring(2, 4)
+                    + '/'
+                    + valor.substring(4);
+            } else if (valor.length > 2) {
+                valor =
+                    valor.substring(0, 2)
+                    + '/'
+                    + valor.substring(2);
+            }
+
+            this.value = valor;
+        });
     }
 
-    campoData.addEventListener('input', function () {
-        let valor = this.value.replace(/\D/g, '');
+    if (formulario) {
+        formulario.addEventListener('submit', function () {
+            if (botaoImportar) {
+                botaoImportar.disabled = true;
+                botaoImportar.innerHTML =
+                    '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>'
+                    + 'Importando...';
+            }
 
-        if (valor.length > 8) {
-            valor = valor.substring(0, 8);
-        }
-
-        if (valor.length > 4) {
-            valor =
-                valor.substring(0, 2)
-                + '/'
-                + valor.substring(2, 4)
-                + '/'
-                + valor.substring(4);
-        } else if (valor.length > 2) {
-            valor =
-                valor.substring(0, 2)
-                + '/'
-                + valor.substring(2);
-        }
-
-        this.value = valor;
-    });
+            if (overlay) {
+                overlay.classList.add('show');
+                overlay.setAttribute('aria-hidden', 'false');
+            }
+        });
+    }
 });
 </script>
 
