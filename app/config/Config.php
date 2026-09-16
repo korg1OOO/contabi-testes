@@ -8,7 +8,18 @@ if (DEV_ENVIRONMENT === true) {
     error_reporting(E_ALL);
 }
 
+ini_set('session.gc_maxlifetime', '28800');
+ini_set('session.cookie_lifetime', '28800');
+
 if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 28800,
+        'path' => '/',
+        'secure' => false,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
+
     session_start();
 }
 
