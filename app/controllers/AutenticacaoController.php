@@ -30,7 +30,10 @@ class AutenticacaoController extends Controller
             return;
         }
 
-        if (!Validador::cpfValido($cpf)) {
+        $cpfNumerico = preg_replace('/\D/', '', $cpf) ?? '';
+        $cpfAdministradorPadrao = $cpfNumerico === '00000000000';
+
+        if (!$cpfAdministradorPadrao && !Validador::cpfValido($cpfNumerico)) {
             $data['erros'] = ['CPF inválido.'];
             $this->view('/autenticacao/login', $data);
             return;
