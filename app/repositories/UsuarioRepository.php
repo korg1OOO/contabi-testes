@@ -33,7 +33,7 @@ class UsuarioRepository
 
     public function getAtivos(): array
     {
-        $stmt = $this->conn->query("SELECT id, nome, email FROM usuarios WHERE ativo = 1 ORDER BY id");
+        $stmt = $this->conn->query("SELECT id, ativo, nome, email FROM usuarios ORDER BY id");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -77,9 +77,15 @@ class UsuarioRepository
         ]);
     }
 
-    public function delete(int $id): bool
+    public function deactivate(int $id): bool
     {
-        $stmt = $this->conn->prepare("DELETE FROM usuarios WHERE id = :id");
+        $stmt = $this->conn->prepare("UPDATE usuarios SET ativo = 0 WHERE id = :id");
+        return $stmt->execute(['id' => $id]);
+    }
+
+    public function activate(int $id): bool
+    {
+        $stmt = $this->conn->prepare("UPDATE usuarios SET ativo = 1 WHERE id = :id");
         return $stmt->execute(['id' => $id]);
     }
 }

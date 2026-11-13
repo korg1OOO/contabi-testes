@@ -164,7 +164,7 @@ class UsuarioController extends Controller
         $this->redirect(URL_BASE . '/usuarios?atualizado=1');
     }
 
-    public function excluir()
+    public function desativar()
     {
         $this->autenticacaoRequired();
 
@@ -179,8 +179,27 @@ class UsuarioController extends Controller
             $this->redirect(URL_BASE . '/usuarios');
         }
 
-        $this->repository->delete($id);
-        $this->redirect(URL_BASE . '/usuarios?excluido=1');
+        $this->repository->deactivate($id);
+        $this->redirect(URL_BASE . '/usuarios?desativado=1');
+    }
+
+    public function ativar()
+    {
+        $this->autenticacaoRequired();
+
+        if (!$this->isAdmin()) {
+            $this->negarAcesso();
+        }
+
+        $this->validarCsrf();
+        $id = (int)($_POST['id'] ?? 0);
+
+        if ($id <= 0 || !$this->repository->findById($id)) {
+            $this->redirect(URL_BASE . '/usuarios');
+        }
+
+        $this->repository->activate($id);
+        $this->redirect(URL_BASE . '/usuarios?ativado=1');
     }
 
     public function excluirDados()

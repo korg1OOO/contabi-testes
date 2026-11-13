@@ -38,8 +38,13 @@ class UsuarioService
         return $this->repository->update($usuario);
     }
 
-    public function deleteUsuario(int $id): bool
+    public function deactivateUsuario(int $id): bool
     {
-        return $this->repository->delete($id);
+        return $this->repository->deactivate($id);
+    }
+
+    public function activateUsuario(int $id): bool
+    {
+        return $this->repository->activate($id);
     }
 }

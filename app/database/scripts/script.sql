@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS clientes (
     alterado TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_clientes_usuario 
         FOREIGN KEY (usuario_id) REFERENCES usuarios(id) 
-        ON DELETE RESTRICT ON UPDATE CASCADE,
+        ON DELETE CASCADE ON UPDATE CASCADE,
     INDEX idx_usuario_id (usuario_id),
     INDEX idx_cpf_cnpj (cpf_cnpj)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
