@@ -57,7 +57,17 @@ class ClienteController extends Controller
 
         $dados['usuario_id'] = (int) $this->usuarioLogado()['id'];
 
-        $this->repository->saveCliente($dados);
+        try {
+            $this->repository->saveCliente($dados);
+        } catch (\PDOException $e) {
+            error_log('Erro ao cadastrar cliente: ' . $e->getMessage());
+            $this->view('clientes/cliente_create', [
+                'csrf_token' => $this->csrfToken(),
+                'cliente' => $dados,
+                'erros' => ['geral' => 'Não foi possível salvar o cliente. Verifique os dados e tente novamente.']
+            ]);
+            return;
+        }
 
         $this->redirect(URL_BASE . '/clientes');
     }
@@ -112,7 +122,17 @@ class ClienteController extends Controller
             return;
         }
 
-        $this->repository->updateCliente($dados, $usuarioId);
+        try {
+            $this->repository->updateCliente($dados, $usuarioId);
+        } catch (\PDOException $e) {
+            error_log('Erro ao atualizar cliente: ' . $e->getMessage());
+            $this->view('clientes/cliente_edit', [
+                'csrf_token' => $this->csrfToken(),
+                'cliente' => $dados,
+                'erros' => ['geral' => 'Não foi possível atualizar o cliente. Verifique os dados e tente novamente.']
+            ]);
+            return;
+        }
 
         $this->redirect(URL_BASE . '/clientes');
     }
@@ -160,12 +180,33 @@ class ClienteController extends Controller
         ];
     }
 
-    private function validarFormulario(array $dados): array
+    private function validarFormulario(array &$dados): array
     {
         $erros = [];
 
         if ($dados['nome'] === '') {
             $erros['nome'] = 'Nome é obrigatório.';
+        }
+
+        if (Validador::tamanho($dados['nome']) > 200) {
+            $erros['nome'] = 'O nome deve ter até 200 caracteres.';
+        }
+        if (Validador::tamanho($dados['email']) > 150) {
+            $erros['email'] = 'O e-mail deve ter até 150 caracteres.';
+        }
+
+        $telefone = trim($dados['telefone']);
+        if ($telefone !== '') {
+            $numeros = preg_replace('/\D/', '', $telefone) ?? '';
+            if (!preg_match('/^[0-9()\s+.-]+$/D', $telefone)
+                || !in_array(strlen($numeros), [10, 11], true)) {
+                $erros['telefone'] = 'Informe um telefone com DDD e 10 ou 11 dígitos.';
+            } else {
+                $ddd = substr($numeros, 0, 2);
+                $parte = substr($numeros, 2);
+                $separador = strlen($numeros) === 11 ? 5 : 4;
+                $dados['telefone'] = sprintf('(%s) %s-%s', $ddd, substr($parte, 0, $separador), substr($parte, $separador));
+            }
         }
 
         if ($dados['tipo_pessoa'] === 'PF') {
