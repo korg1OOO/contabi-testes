@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="<?= URL_BASE ?>/assets/images/icon-512.png">
     <link rel="shortcut icon" href="<?= URL_BASE ?>/favicon.ico">
     <link rel="apple-touch-icon" href="<?= URL_BASE ?>/assets/images/apple-touch-icon.png">
-<title>Editar Patente • Contabi</title>
+<title>Nova Patente • Contabi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= URL_BASE_CSS ?>/style.css">
@@ -17,71 +17,91 @@
 
 <div class="main-content">
     <div class="topbar">
-        <span class="page-title">Editar Patente</span>
-        <a href="<?= URL_BASE ?>/patentes?cliente_id=<?= $patente['cliente_id'] ?>" class="btn btn-outline-secondary btn-sm">Voltar</a>
+        <span class="page-title">Nova Patente</span>
+        <a href="<?= URL_BASE ?>/patentes" class="btn btn-outline-secondary btn-sm">Voltar</a>
     </div>
 
     <div class="card col-lg-8">
         <div class="card-body p-4">
-            <form action="<?= URL_BASE ?>/patentes/atualizar" method="post">
+            <form action="<?= URL_BASE ?>/patentes/salvar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
-                <input type="hidden" name="id" value="<?= $patente['id'] ?>">
-                <input type="hidden" name="cliente_id" value="<?= $patente['cliente_id'] ?>">
+                <?php if (!empty($erros)): ?>
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Não foi possível salvar.</strong> Corrija as informações abaixo:
+                        <ul class="mb-0 mt-1">
+                            <?php foreach ($erros as $mensagem): ?>
+                                <li><?= htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') ?></li>
+                            <?php endforeach; ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Cliente</label>
+                    <select name="cliente_id" class="form-select" required>
+                        <option value="">Selecione o cliente</option>
+                        <?php foreach ($clientes as $cliente): ?>
+                            <option value="<?= $cliente['id'] ?>" <?= (int)($patente['cliente_id'] ?? 0) === (int)$cliente['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($cliente['nome']) ?> (<?= htmlspecialchars($cliente['cpf_cnpj']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nº Processo INPI</label>
-                        <input type="text" name="numero_processo" class="form-control" value="<?= htmlspecialchars($patente['numero_processo']) ?>" required>
+                        <input type="text" name="numero_processo" class="form-control <?= isset($erros['numero_processo']) ? 'is-invalid' : '' ?>" maxlength="30" value="<?= htmlspecialchars((string)($patente['numero_processo'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Titular</label>
-                        <input type="text" name="titular" class="form-control" value="<?= htmlspecialchars($patente['titular']) ?>" required>
+                        <input type="text" name="titular" class="form-control <?= isset($erros['titular']) ? 'is-invalid' : '' ?>" maxlength="200" value="<?= htmlspecialchars((string)($patente['titular'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Tipo de Patente</label>
                         <select name="tipo_patente" class="form-select">
-                            <option value="Patente de Invenção" <?= $patente['tipo_patente'] == 'Patente de Invenção' ? 'selected' : '' ?>>Patente de Invenção</option>
-                            <option value="Modelo de Utilidade" <?= $patente['tipo_patente'] == 'Modelo de Utilidade' ? 'selected' : '' ?>>Modelo de Utilidade</option>
-                            <option value="Desenho Industrial" <?= $patente['tipo_patente'] == 'Desenho Industrial' ? 'selected' : '' ?>>Desenho Industrial</option>
+                            <option value="Patente de Invenção" <?= ($patente['tipo_patente'] ?? '') === 'Patente de Invenção' ? 'selected' : '' ?>>Patente de Invenção</option>
+                            <option value="Modelo de Utilidade" <?= ($patente['tipo_patente'] ?? '') === 'Modelo de Utilidade' ? 'selected' : '' ?>>Modelo de Utilidade</option>
+                            <option value="Desenho Industrial" <?= ($patente['tipo_patente'] ?? '') === 'Desenho Industrial' ? 'selected' : '' ?>>Desenho Industrial</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Status</label>
                         <select name="status" class="form-select">
-                            <option value="Depositada" <?= $patente['status'] == 'Depositada' ? 'selected' : '' ?>>Depositada</option>
-                            <option value="Em exame" <?= $patente['status'] == 'Em exame' ? 'selected' : '' ?>>Em exame</option>
-                            <option value="Concedida" <?= $patente['status'] == 'Concedida' ? 'selected' : '' ?>>Concedida</option>
-                            <option value="Arquivada" <?= $patente['status'] == 'Arquivada' ? 'selected' : '' ?>>Arquivada</option>
+                            <option value="Depositada" <?= ($patente['status'] ?? '') === 'Depositada' ? 'selected' : '' ?>>Depositada</option>
+                            <option value="Em exame" <?= ($patente['status'] ?? '') === 'Em exame' ? 'selected' : '' ?>>Em exame</option>
+                            <option value="Concedida" <?= ($patente['status'] ?? '') === 'Concedida' ? 'selected' : '' ?>>Concedida</option>
+                            <option value="Arquivada" <?= ($patente['status'] ?? '') === 'Arquivada' ? 'selected' : '' ?>>Arquivada</option>
                         </select>
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Data de Depósito</label>
-                        <input type="text" name="data_deposito" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= !empty($patente['data_deposito']) ? date('d/m/Y', strtotime($patente['data_deposito'])) : '' ?>" required>
+                        <input type="text" name="data_deposito" class="form-control <?= isset($erros['data_deposito']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($patente['data_deposito'] ?? null), ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Data de Concessão</label>
-                        <input type="text" name="data_concessao" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= !empty($patente['data_concessao']) ? date('d/m/Y', strtotime($patente['data_concessao'])) : '' ?>">
+                        <input type="text" name="data_concessao" class="form-control <?= isset($erros['data_concessao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($patente['data_concessao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Data de Vencimento</label>
-                        <input type="text" name="data_vencimento" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= !empty($patente['data_vencimento']) ? date('d/m/Y', strtotime($patente['data_vencimento'])) : '' ?>">
+                        <input type="text" name="data_vencimento" class="form-control <?= isset($erros['data_vencimento']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($patente['data_vencimento'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
 
                     <div class="col-12">
                         <label class="form-label fw-semibold">Inventores</label>
-                        <textarea name="inventores" class="form-control" rows="2"><?= htmlspecialchars($patente['inventores'] ?? '') ?></textarea>
+                        <textarea name="inventores" class="form-control" rows="2"></textarea>
                     </div>
 
                     <div class="col-12">
                         <label class="form-label fw-semibold">Resumo</label>
-                        <textarea name="resumo" class="form-control" rows="3"><?= htmlspecialchars($patente['resumo'] ?? '') ?></textarea>
+                        <textarea name="resumo" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-primary">Atualizar Patente</button>
+                    <button type="submit" class="btn btn-primary">Salvar Patente</button>
                 </div>
             </form>
         </div>
@@ -89,6 +109,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?= URL_BASE ?>/assets/js/mascaras.js"></script>
+<script src="<?= URL_BASE ?>/assets/js/mascaras.js?v=2"></script>
 </body>
 </html>
