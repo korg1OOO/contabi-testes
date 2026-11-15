@@ -83,7 +83,16 @@ document.addEventListener('DOMContentLoaded', () => {
         'input[name="data_final"]'
     ).forEach((campo) => {
         mascaraData(campo);
-        campo.addEventListener('input', () => mascaraData(campo));
+        campo.addEventListener('input', () => {
+            mascaraData(campo);
+            validarDatasFormulario(campo.form);
+        });
+    });
+
+    document.querySelectorAll('form').forEach((form) => {
+        if (!form.querySelector('input[name="data_deposito"]')) return;
+        validarDatasFormulario(form);
+        form.addEventListener('submit', () => validarDatasFormulario(form));
     });
 
     document.querySelectorAll('input[name="telefone"]').forEach((campo) => {
@@ -104,4 +113,37 @@ function mascaraTelefone(campo) {
         : telefone.replace(/(\d{4})(\d{1,4})$/, '$1-$2');
 
     campo.value = telefone;
+}
+
+function dataCivilBR(valor) {
+    const formato = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(valor);
+    if (!formato) return null;
+    const dia = Number(formato[1]), mes = Number(formato[2]), ano = Number(formato[3]);
+    if (ano < 1000 || ano > 9999 || mes < 1 || mes > 12) return null;
+    const ultimoDia = new Date(Date.UTC(ano, mes, 0)).getUTCDate();
+    if (dia < 1 || dia > ultimoDia) return null;
+    return `${ano.toString().padStart(4, '0')}-${formato[2]}-${formato[1]}`;
+}
+
+function validarDatasFormulario(form) {
+    if (!form) return;
+    const nomes = ['data_deposito', 'data_concessao', 'data_vencimento'];
+    const campos = Object.fromEntries(nomes.map(n => [n, form.querySelector(`[name="${n}"]`)]));
+    const datas = {};
+    for (const nome of nomes) {
+        const campo = campos[nome];
+        if (!campo) continue;
+        campo.setCustomValidity('');
+        if (campo.value.trim() === '') continue;
+        datas[nome] = dataCivilBR(campo.value.trim());
+        if (datas[nome] === null && /^\d{2}\/\d{2}\/\d{4}$/.test(campo.value.trim())) {
+            campo.setCustomValidity('Data inválida. Verifique dia, mês e ano.');
+        }
+    }
+    if (datas.data_deposito && datas.data_vencimento && datas.data_vencimento < datas.data_deposito) {
+        campos.data_vencimento.setCustomValidity('O vencimento não pode ser anterior ao depósito.');
+    }
+    if (datas.data_deposito && datas.data_concessao && datas.data_concessao < datas.data_deposito) {
+        campos.data_concessao.setCustomValidity('A concessão não pode ser anterior ao depósito.');
+    }
 }
