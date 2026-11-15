@@ -27,8 +27,8 @@
                 <input type="hidden" name="id" value="<?= (int)($cliente['id'] ?? 0) ?>">
 
                 <?php if (!empty($erros)): ?>
-                    <div class="alert alert-danger">
-                        Corrija os campos destacados abaixo.
+                    <div class="alert alert-danger" role="alert">
+                        <?= htmlspecialchars($erros['geral'] ?? 'Corrija os campos destacados abaixo.', ENT_QUOTES, 'UTF-8') ?>
                     </div>
                 <?php endif; ?>
 
@@ -76,7 +76,11 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Telefone</label>
-                        <input type="text" name="telefone" class="form-control" value="<?= htmlspecialchars($cliente['telefone'] ?? '') ?>">
+                        <input type="tel" name="telefone" class="form-control <?= isset($erros['telefone']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($cliente['telefone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="(00) 00000-0000" maxlength="15" inputmode="tel" aria-describedby="telefone-ajuda">
+                        <?php if (isset($erros['telefone'])): ?>
+                            <div class="invalid-feedback"><?= htmlspecialchars($erros['telefone'], ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php endif; ?>
+                        <div id="telefone-ajuda" class="form-text">DDD + 8 ou 9 números (telefone opcional).</div>
                     </div>
 
                     <div class="col-12">
@@ -98,6 +102,7 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= URL_BASE ?>/assets/js/mascaras.js?v=2"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const tipo = document.getElementById('tipo_pessoa');
