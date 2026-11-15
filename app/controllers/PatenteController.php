@@ -2,6 +2,7 @@
 namespace app\controllers;
 
 use app\core\Controller;
+use app\helpers\Validador;
 use app\repositories\ClienteRepository;
 use app\repositories\PatenteRepository;
 use app\services\PrazoService;
@@ -43,11 +44,22 @@ class PatenteController extends Controller
         $this->validarCsrf();
         $usuarioId = $this->isAdmin() ? null : (int)$this->usuarioLogado()['id'];
         $patenteData = $this->dadosFormulario();
+        $erros = $this->validarFormulario($patenteData);
+        if ($erros) {
+            $this->view('patentes/patente_create', [
+                'patente' => $patenteData,
+                'clientes' => (new ClienteRepository())->getClientes($usuarioId),
+                'csrf_token' => $this->csrfToken(),
+                'erros' => $erros
+            ]);
+            return;
+        }
         $cliente = (new ClienteRepository())->getClienteById($patenteData['cliente_id'], $usuarioId);
         if (!$cliente) {
             $this->negarAcesso();
         }
         if ($this->repository->processoExisteParaUsuario($patenteData['numero_processo'], (int)$cliente['usuario_id'])) {
+            $data['patente'] = $patenteData;
             $data['erros']['geral'] = 'Este número de processo já está cadastrado na sua carteira.';
             $data['clientes'] = (new ClienteRepository())->getClientes($usuarioId);
             $data['csrf_token'] = $this->csrfToken();
@@ -66,6 +78,7 @@ class PatenteController extends Controller
                 $this->repository->getConnection()->rollBack();
             }
             error_log($e->getMessage());
+            $data['patente'] = $patenteData;
             $data['erros']['geral'] = 'Erro ao salvar patente. Tente novamente.';
             $data['clientes'] = (new ClienteRepository())->getClientes($usuarioId);
             $data['csrf_token'] = $this->csrfToken();
@@ -94,6 +107,15 @@ class PatenteController extends Controller
         $patenteData['id'] = (int)($_POST['id'] ?? 0);
         if (!$this->repository->findById($patenteData['id'], $usuarioId)) {
             $this->negarAcesso();
+        }
+        $erros = $this->validarFormulario($patenteData);
+        if ($erros) {
+            $this->view('patentes/patente_edit', [
+                'patente' => $patenteData,
+                'csrf_token' => $this->csrfToken(),
+                'erros' => $erros
+            ]);
+            return;
         }
         $cliente = (new ClienteRepository())->getClienteById($patenteData['cliente_id'], $usuarioId);
         if (!$cliente) {
@@ -147,9 +169,9 @@ class PatenteController extends Controller
             'numero_processo' => trim($_POST['numero_processo'] ?? ''),
             'titular' => trim($_POST['titular'] ?? ''),
             'status' => trim($_POST['status'] ?? 'Depositada'),
-            'data_deposito' => $this->dataParaBanco($_POST['data_deposito'] ?? '') ?? '',
-            'data_concessao' => $this->dataParaBanco($_POST['data_concessao'] ?? ''),
-            'data_vencimento' => $this->dataParaBanco($_POST['data_vencimento'] ?? ''),
+            'data_deposito' => trim($_POST['data_deposito'] ?? ''),
+            'data_concessao' => trim($_POST['data_concessao'] ?? ''),
+            'data_vencimento' => trim($_POST['data_vencimento'] ?? ''),
             'tipo_patente' => $nullable('tipo_patente'),
             'inventores' => $nullable('inventores'),
             'resumo' => $nullable('resumo'),
@@ -159,21 +181,22 @@ class PatenteController extends Controller
             'observacoes' => $nullable('observacoes')
         ];
     }
-    private function dataParaBanco(?string $data): ?string
+    private function validarFormulario(array &$dados): array
     {
-        $data = trim((string)$data);
-        if ($data === '') {
-            return null;
+        $erros = Validador::validarDatasRegistro($dados);
+        if ($dados['numero_processo'] === '') {
+            $erros['numero_processo'] = 'Informe o número do processo.';
+        } elseif (Validador::tamanho($dados['numero_processo']) > 30) {
+            $erros['numero_processo'] = 'O número do processo deve ter até 30 caracteres.';
         }
-
-        $obj = \DateTime::createFromFormat('!d/m/Y', $data);
-        $erros = \DateTime::getLastErrors();
-
-        if (!$obj || ($erros !== false && ($erros['warning_count'] > 0 || $erros['error_count'] > 0))) {
-            throw new \InvalidArgumentException('Data inválida. Use o formato dd/mm/aaaa.');
+        if ($dados['titular'] === '') {
+            $erros['titular'] = 'Informe o titular.';
+        } elseif (Validador::tamanho($dados['titular']) > 200) {
+            $erros['titular'] = 'O titular deve ter até 200 caracteres.';
         }
-
-        return $obj->format('Y-m-d');
+        if (Validador::tamanho($dados['status']) > 50) {
+            $erros['status'] = 'O status deve ter até 50 caracteres.';
+        }
+        return $erros;
     }
-
 }
