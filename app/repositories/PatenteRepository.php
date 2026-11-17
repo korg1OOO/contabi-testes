@@ -114,8 +114,26 @@ class PatenteRepository
 
     public function findByNumeroProcessoAndUsuario(string $numeroProcesso, int $usuarioId): ?array
     {
-        $stmt = $this->conn->prepare('SELECT p.* FROM patentes p INNER JOIN clientes c ON p.cliente_id = c.id WHERE p.numero_processo = :numero_processo AND c.usuario_id = :usuario_id LIMIT 1');
-        $stmt->execute(['numero_processo' => $numeroProcesso, 'usuario_id' => $usuarioId]);
+        $numeroNormalizado = preg_replace('/\D/', '', $numeroProcesso);
+        if ($numeroNormalizado === '') {
+            return null;
+        }
+
+        $sql = "SELECT p.*
+                FROM patentes p
+                INNER JOIN clientes c ON p.cliente_id = c.id
+                WHERE c.usuario_id = :usuario_id
+                  AND (
+                    p.numero_processo = :numero_processo
+                    OR REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(UPPER(p.numero_processo), 'BR', ''), ' ', ''), '.', ''), '-', ''), '/', ''), '\t', '') = :numero_normalizado
+                  )
+                LIMIT 1";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            'numero_processo' => $numeroProcesso,
+            'numero_normalizado' => $numeroNormalizado,
+            'usuario_id' => $usuarioId
+        ]);
         return $stmt->fetch() ?: null;
     }
 
