@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" sizes="512x512" href="<?= URL_BASE ?>/assets/images/icon-512.png">
     <link rel="shortcut icon" href="<?= URL_BASE ?>/favicon.ico">
     <link rel="apple-touch-icon" href="<?= URL_BASE ?>/assets/images/apple-touch-icon.png">
-<title>Nova Patente • Contabi</title>
+<title>Editar Patente • Contabi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= URL_BASE_CSS ?>/style.css">
@@ -17,13 +17,13 @@
 
 <div class="main-content">
     <div class="topbar">
-        <span class="page-title">Nova Patente</span>
-        <a href="<?= URL_BASE ?>/patentes" class="btn btn-outline-secondary btn-sm">Voltar</a>
+        <span class="page-title">Editar Patente</span>
+        <a href="<?= URL_BASE ?>/patentes?cliente_id=<?= (int)($patente['cliente_id'] ?? 0) ?>" class="btn btn-outline-secondary btn-sm">Voltar</a>
     </div>
 
     <div class="card col-lg-8">
         <div class="card-body p-4">
-            <form action="<?= URL_BASE ?>/patentes/salvar" method="post">
+            <form action="<?= URL_BASE ?>/patentes/atualizar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
                 <?php if (!empty($erros)): ?>
                     <div class="alert alert-danger" role="alert">
@@ -35,18 +35,8 @@
                         </ul>
                     </div>
                 <?php endif; ?>
-
-                <div class="mb-3">
-                    <label class="form-label fw-semibold">Cliente</label>
-                    <select name="cliente_id" class="form-select" required>
-                        <option value="">Selecione o cliente</option>
-                        <?php foreach ($clientes as $cliente): ?>
-                            <option value="<?= $cliente['id'] ?>" <?= (int)($patente['cliente_id'] ?? 0) === (int)$cliente['id'] ? 'selected' : '' ?>>
-                                <?= htmlspecialchars($cliente['nome']) ?> (<?= htmlspecialchars($cliente['cpf_cnpj']) ?>)
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
+                <input type="hidden" name="id" value="<?= (int)($patente['id'] ?? 0) ?>">
+                <input type="hidden" name="cliente_id" value="<?= (int)($patente['cliente_id'] ?? 0) ?>">
 
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -91,17 +81,17 @@
 
                     <div class="col-12">
                         <label class="form-label fw-semibold">Inventores</label>
-                        <textarea name="inventores" class="form-control" rows="2"></textarea>
+                        <textarea name="inventores" class="form-control" rows="2"><?= htmlspecialchars((string)($patente['inventores'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
 
                     <div class="col-12">
                         <label class="form-label fw-semibold">Resumo</label>
-                        <textarea name="resumo" class="form-control" rows="3"></textarea>
+                        <textarea name="resumo" class="form-control" rows="3"><?= htmlspecialchars((string)($patente['resumo'] ?? ''), ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
                 </div>
 
                 <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-primary">Salvar Patente</button>
+                    <button type="submit" class="btn btn-primary">Atualizar Patente</button>
                 </div>
             </form>
         </div>

@@ -79,11 +79,19 @@ class RpiImportacaoService
         $extensao = strtolower(pathinfo($nomeOriginal, PATHINFO_EXTENSION));
 
         if (in_array($extensao, ['xml', 'txt'], true)) {
-            return [$arquivo];
+            return [[
+              "arquivo" => $arquivo,
+              "extensao" => $extensao
+            ]];
         }
 
         if ($extensao === 'pdf') {
-            return [$this->extrairTextoPdf($arquivo, $temporarios)];
+            $arquivo = $this->extrairTextoPdf($arquivo, $temporarios);
+
+            return [[
+              "arquivo" => $arquivo,
+              "extensao" => "txt"
+            ]];
         }
 
         if ($extensao !== 'zip') {
@@ -117,11 +125,13 @@ class RpiImportacaoService
                 continue;
             }
 
-            $ext = strtolower($item->getExtension());
-            if (in_array($ext, ['xml', 'txt'], true)) {
-                $arquivos[] = $item->getPathname();
-            } elseif ($ext === 'pdf') {
-                $arquivos[] = $this->extrairTextoPdf($item->getPathname(), $temporarios);
+            $extensao = strtolower($item->getExtension());
+            $arquivo = $item->getPathname();
+
+            if (in_array($extensao, ['xml', 'txt'], true)) {
+                $arquivos[] = ["arquivo" => $arquivo, "extensao" => $extensao];
+            } elseif ($extensao === 'pdf') {
+                $arquivos[] = $this->extrairTextoPdf($arquivo, $temporarios);
             }
         }
 
@@ -205,9 +215,9 @@ class RpiImportacaoService
 
     private function selecionarArquivo(array $arquivos, array $extensoes): ?string
     {
-        foreach ($arquivos as $arquivo) {
-            if (in_array(strtolower(pathinfo($arquivo, PATHINFO_EXTENSION)), $extensoes, true)) {
-                return $arquivo;
+        foreach ($arquivos as $item) {
+            if (in_array($item['extensao'], $extensoes, true)) {
+                return $item['arquivo'];
             }
         }
         return null;
@@ -233,18 +243,19 @@ class RpiImportacaoService
         while ($reader->read()) {
             if ($reader->nodeType === XMLReader::ELEMENT && $reader->localName === 'revista') {
                 $numeroRevista = $numeroRevista ?: $reader->getAttribute('numero');
-                $dataPublicacao = $dataPublicacao ?: $this->dataBanco($reader->getAttribute('dataPublicacao'));
+                $dataRevista = $reader->getAttribute('data') ?: $reader->getAttribute('dataPublicacao');
+                $dataPublicacao = $dataPublicacao ?: $this->dataBanco($dataRevista);
             }
             if ($reader->nodeType !== XMLReader::ELEMENT || $reader->localName !== 'processo') {
                 continue;
             }
             $xml = @simplexml_load_string($reader->readOuterXML(), SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
             if (!$xml) {
-                continue;
+                throw new RuntimeException('Não foi possível interpretar um registro de processo no XML de marcas.');
             }
             $numeroProcesso = trim((string)$xml['numero']);
             $nomeMarca = trim((string)($xml->marca->nome ?? ''));
-            if ($numeroProcesso === '' || $nomeMarca === '') {
+            if ($numeroProcesso === '') {
                 continue;
             }
             $titulares = [];
@@ -258,25 +269,27 @@ class RpiImportacaoService
             $apresentacao = trim((string)($xml->marca['apresentacao'] ?? ''));
             $dataDeposito = $this->dataBanco((string)($xml['data-deposito'] ?? ''));
 
-            foreach ($xml->{'lista-classe-nice'}->{'classe-nice'} ?? [] as $classe) {
-                $classeNice = (int)$classe['codigo'];
-                if ($classeNice < 1 || $classeNice > 45) {
-                    continue;
+            if ($nomeMarca !== '') {
+                foreach ($xml->{'lista-classe-nice'}->{'classe-nice'} ?? [] as $classe) {
+                    $classeNice = (int)$classe['codigo'];
+                    if ($classeNice < 1 || $classeNice > 45) {
+                        continue;
+                    }
+                    $status = trim((string)($classe->status ?? ''));
+                    $inpiRepo->salvar([
+                        'numero_processo' => $numeroProcesso,
+                        'nome_marca' => $nomeMarca,
+                        'nome_normalizado' => SimilaridadeHelper::normalizar($nomeMarca),
+                        'chave_fonetica' => SimilaridadeHelper::chaveFonetica($nomeMarca),
+                        'titular' => $titularTexto ?: null,
+                        'classe_nice' => $classeNice,
+                        'status' => $status ?: null,
+                        'apresentacao' => $apresentacao ?: null,
+                        'data_deposito' => $dataDeposito,
+                        'numero_revista' => $numeroRevista
+                    ]);
+                    $indexadas++;
                 }
-                $status = trim((string)($classe->status ?? ''));
-                $inpiRepo->salvar([
-                    'numero_processo' => $numeroProcesso,
-                    'nome_marca' => $nomeMarca,
-                    'nome_normalizado' => SimilaridadeHelper::normalizar($nomeMarca),
-                    'chave_fonetica' => SimilaridadeHelper::chaveFonetica($nomeMarca),
-                    'titular' => $titularTexto ?: null,
-                    'classe_nice' => $classeNice,
-                    'status' => $status ?: null,
-                    'apresentacao' => $apresentacao ?: null,
-                    'data_deposito' => $dataDeposito,
-                    'numero_revista' => $numeroRevista
-                ]);
-                $indexadas++;
             }
 
             $marca = $marcaRepo->findByNumeroProcessoAndUsuario($numeroProcesso, $usuarioId);
@@ -505,7 +518,7 @@ class RpiImportacaoService
             if (!$numeroRevista && preg_match('/<revista[^>]*numero="([^"]+)"/i', $linha, $m)) {
                 $numeroRevista = $m[1];
             }
-            if (!$dataPublicacao && preg_match('/<revista[^>]*dataPublicacao="([^"]+)"/i', $linha, $m)) {
+            if (!$dataPublicacao && preg_match('/<revista\b[^>]*\b(?:dataPublicacao|data)="([^"]+)"/i', $linha, $m)) {
                 $dataPublicacao = $this->dataBanco($m[1]);
             }
             if (!$capturando && preg_match('/<processo\s/i', $linha)) {
@@ -521,11 +534,11 @@ class RpiImportacaoService
                 $processo = @simplexml_load_string($bloco, SimpleXMLElement::class, LIBXML_NONET | LIBXML_NOCDATA);
                 $bloco = '';
                 if (!$processo) {
-                    continue;
+                    throw new RuntimeException('Não foi possível interpretar um registro de processo no XML de marcas.');
                 }
                 $numeroProcesso = trim((string)$processo['numero']);
                 $nomeMarca = trim((string)($processo->marca->nome ?? ''));
-                if ($numeroProcesso === '' || $nomeMarca === '') {
+                if ($numeroProcesso === '') {
                     continue;
                 }
                 $titulares = [];
@@ -538,24 +551,26 @@ class RpiImportacaoService
                 $titularTexto = implode('; ', $titulares);
                 $apresentacao = trim((string)($processo->marca['apresentacao'] ?? ''));
                 $dataDeposito = $this->dataBanco((string)($processo['data-deposito'] ?? ''));
-                foreach ($processo->{'lista-classe-nice'}->{'classe-nice'} ?? [] as $classe) {
-                    $classeNice = (int)$classe['codigo'];
-                    if ($classeNice < 1 || $classeNice > 45) {
-                        continue;
+                if ($nomeMarca !== '') {
+                    foreach ($processo->{'lista-classe-nice'}->{'classe-nice'} ?? [] as $classe) {
+                        $classeNice = (int)$classe['codigo'];
+                        if ($classeNice < 1 || $classeNice > 45) {
+                            continue;
+                        }
+                        $inpiRepo->salvar([
+                            'numero_processo' => $numeroProcesso,
+                            'nome_marca' => $nomeMarca,
+                            'nome_normalizado' => SimilaridadeHelper::normalizar($nomeMarca),
+                            'chave_fonetica' => SimilaridadeHelper::chaveFonetica($nomeMarca),
+                            'titular' => $titularTexto ?: null,
+                            'classe_nice' => $classeNice,
+                            'status' => trim((string)($classe->status ?? '')) ?: null,
+                            'apresentacao' => $apresentacao ?: null,
+                            'data_deposito' => $dataDeposito,
+                            'numero_revista' => $numeroRevista
+                        ]);
+                        $indexadas++;
                     }
-                    $inpiRepo->salvar([
-                        'numero_processo' => $numeroProcesso,
-                        'nome_marca' => $nomeMarca,
-                        'nome_normalizado' => SimilaridadeHelper::normalizar($nomeMarca),
-                        'chave_fonetica' => SimilaridadeHelper::chaveFonetica($nomeMarca),
-                        'titular' => $titularTexto ?: null,
-                        'classe_nice' => $classeNice,
-                        'status' => trim((string)($classe->status ?? '')) ?: null,
-                        'apresentacao' => $apresentacao ?: null,
-                        'data_deposito' => $dataDeposito,
-                        'numero_revista' => $numeroRevista
-                    ]);
-                    $indexadas++;
                 }
                 $marca = $marcaRepo->findByNumeroProcessoAndUsuario($numeroProcesso, $usuarioId);
                 if (!$marca) {
@@ -644,6 +659,19 @@ class RpiImportacaoService
         if (function_exists('mb_check_encoding') && !mb_check_encoding($conteudo, 'UTF-8')) {
             $conteudo = mb_convert_encoding($conteudo, 'UTF-8', 'Windows-1252,ISO-8859-1');
         }
+
+        if (
+            !preg_match('/\(Cd\)\s/iu', $conteudo)
+            && preg_match('/^\s*\((?:21|11)\).*?\bCódigo\s+[0-9A-Z.]+\s*-/imu', $conteudo)
+        ) {
+            return $this->importarPatentesPdfTexto(
+                $conteudo,
+                $usuarioId,
+                $numeroInformado,
+                $dataInformada
+            );
+        }
+
         preg_match('/N[oº°]?\s*(\d+)\s+de\s+(\d{2}\/\d{2}\/\d{4})/iu', $conteudo, $cabecalho);
         $numeroRevista = $numeroInformado ?: ($cabecalho[1] ?? null);
         $dataPublicacao = $dataInformada ?: $this->dataBanco($cabecalho[2] ?? null);
@@ -656,7 +684,7 @@ class RpiImportacaoService
             if (!preg_match('/\((?:21|11)\)\s*([^\r\n]+)/u', $bloco, $numeroMatch)) {
                 continue;
             }
-            $numeroProcesso = trim(preg_replace('/\s+(?:A\d|B\d|C\d|U\d)\s*$/i', '', $numeroMatch[1]));
+            $numeroProcesso = trim(preg_replace('/\s+[A-Z]\d\s*$/i', '', $numeroMatch[1]));
             $patente = $patenteRepo->findByNumeroProcessoAndUsuario($numeroProcesso, $usuarioId);
             if (!$patente) {
                 continue;
@@ -682,6 +710,121 @@ class RpiImportacaoService
             'numero_revista' => $numeroRevista,
             'data_publicacao' => $dataPublicacao
         ];
+    }
+
+    private function importarPatentesPdfTexto(string $conteudo, int $usuarioId, ?string $numeroInformado, ?string $dataInformada): array
+    {
+        $numeroRevista = $numeroInformado;
+        $dataPublicacao = $dataInformada;
+
+        if (preg_match('/N[oº°]?\s*(\d{3,5})\s+(\d{1,2})\s+de\s+([\p{L}]+)\s+de\s+(\d{4})/iu', $conteudo, $cabecalho)) {
+            $numeroRevista = $numeroRevista ?: $cabecalho[1];
+            $dataPublicacao = $dataPublicacao ?: $this->dataMesExtenso($cabecalho[2], $cabecalho[3], $cabecalho[4]);
+        }
+
+        if (!$numeroRevista || !$dataPublicacao) {
+            throw new RuntimeException('Não foi possível identificar o número ou a data da revista. Informe esses dados no formulário.');
+        }
+
+        $linhas = preg_split('/\R/u', $conteudo) ?: [];
+        $patenteRepo = new PatenteRepository();
+        $despachos = 0;
+        $duplicados = 0;
+        $processados = [];
+
+        foreach ($linhas as $indice => $linha) {
+            if (!preg_match('/^\s*\((?:21|11)\)\s+(.+?)(?:\s+[A-Z]\d)?\s+Código\s+([0-9A-Z.]+)\s*-\s*(.*?)\s*$/iu', $linha, $partes)) {
+                continue;
+            }
+
+            $numeroProcesso = trim($partes[1]);
+            $codigo = trim($partes[2]);
+            $descricao = trim($partes[3]);
+
+            for ($i = $indice + 1; $i < count($linhas); $i++) {
+                $continuacao = trim($linhas[$i]);
+                if (
+                    $continuacao === ''
+                    || preg_match('/^\([0-9]{2}\)\s/u', $continuacao)
+                    || preg_match('/^\s*\((?:21|11)\)\s/u', $continuacao)
+                    || preg_match('/^Patentes\s*[–-]\s*RPI\b/iu', $continuacao)
+                    || preg_match('/^Código\s+[0-9A-Z.]+\s*-/iu', $continuacao)
+                ) {
+                    break;
+                }
+                $descricao = trim($descricao . ' ' . $continuacao);
+            }
+
+            if ($numeroProcesso === '') {
+                continue;
+            }
+
+            $chave = $numeroProcesso . '|' . $codigo;
+            if (isset($processados[$chave])) {
+                continue;
+            }
+            $processados[$chave] = true;
+
+            $patente = $patenteRepo->findByNumeroProcessoAndUsuario($numeroProcesso, $usuarioId);
+            if (!$patente) {
+                continue;
+            }
+
+            $dados = $this->dadosDespacho(
+                $numeroRevista,
+                $dataPublicacao,
+                $numeroProcesso,
+                $codigo,
+                $descricao ?: 'Despacho publicado na RPI',
+                null,
+                (int)$patente['id']
+            );
+
+            if ($this->despachoRepo->existe($dados)) {
+                $duplicados++;
+                continue;
+            }
+
+            $this->despachoRepo->save($dados);
+            $this->notificar($dados, $usuarioId);
+            $despachos++;
+        }
+
+        return [
+            'despachos' => $despachos,
+            'marcas_indexadas' => 0,
+            'duplicados' => $duplicados,
+            'numero_revista' => $numeroRevista,
+            'data_publicacao' => $dataPublicacao
+        ];
+    }
+
+    private function dataMesExtenso(string $dia, string $mes, string $ano): ?string
+    {
+        $mesNormalizado = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $mes) ?: $mes;
+        $meses = [
+            'janeiro' => 1,
+            'fevereiro' => 2,
+            'marco' => 3,
+            'abril' => 4,
+            'maio' => 5,
+            'junho' => 6,
+            'julho' => 7,
+            'agosto' => 8,
+            'setembro' => 9,
+            'outubro' => 10,
+            'novembro' => 11,
+            'dezembro' => 12
+        ];
+        $numeroMes = $meses[strtolower($mesNormalizado)] ?? null;
+        $numeroDia = (int)$dia;
+        $numeroAno = (int)$ano;
+
+        if ($numeroMes === null || !checkdate($numeroMes, $numeroDia, $numeroAno)) {
+            return null;
+        }
+
+        return sprintf('%04d-%02d-%02d', $numeroAno, $numeroMes, $numeroDia);
     }
 
     private function dadosDespacho(?string $numeroRevista, ?string $dataPublicacao, string $numeroProcesso, string $codigo, string $descricao, ?int $marcaId, ?int $patenteId): array
