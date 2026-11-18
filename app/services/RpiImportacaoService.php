@@ -79,11 +79,19 @@ class RpiImportacaoService
         $extensao = strtolower(pathinfo($nomeOriginal, PATHINFO_EXTENSION));
 
         if (in_array($extensao, ['xml', 'txt'], true)) {
-            return [$arquivo];
+            return [[
+              "arquivo" => $arquivo,
+              "extensao" => $extensao
+            ]];
         }
 
         if ($extensao === 'pdf') {
-            return [$this->extrairTextoPdf($arquivo, $temporarios)];
+            $arquivo = [$this->extrairTextoPdf($arquivo, $temporarios)];
+
+            return [[
+              "arquivo" => $arquivo,
+              "extensao" => $extensao
+            ]];
         }
 
         if ($extensao !== 'zip') {
@@ -117,11 +125,13 @@ class RpiImportacaoService
                 continue;
             }
 
-            $ext = strtolower($item->getExtension());
-            if (in_array($ext, ['xml', 'txt'], true)) {
-                $arquivos[] = $item->getPathname();
-            } elseif ($ext === 'pdf') {
-                $arquivos[] = $this->extrairTextoPdf($item->getPathname(), $temporarios);
+            $extensao = strtolower($item->getExtension());
+            $arquivo = $item->getPathname();
+
+            if (in_array($extensao, ['xml', 'txt'], true)) {
+                $arquivos[] = ["arquivo" => $arquivo, "extensao" => $extensao];
+            } elseif ($extensao === 'pdf') {
+                $arquivos[] = $this->extrairTextoPdf($arquivo, $temporarios);
             }
         }
 
@@ -205,9 +215,9 @@ class RpiImportacaoService
 
     private function selecionarArquivo(array $arquivos, array $extensoes): ?string
     {
-        foreach ($arquivos as $arquivo) {
-            if (in_array(strtolower(pathinfo($arquivo, PATHINFO_EXTENSION)), $extensoes, true)) {
-                return $arquivo;
+        foreach ($arquivos as $item) {
+            if (in_array($item['extensao'], $extensoes, true)) {
+                return $item['arquivo'];
             }
         }
         return null;
