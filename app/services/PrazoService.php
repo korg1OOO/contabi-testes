@@ -16,176 +16,39 @@ class PrazoService
 
     public function syncPrazosFromMarca(array $marca): void
     {
-        $this->repository->deleteByMarca(
-            (int) $marca['id']
-        );
-
-        $prazosParaCriar = [];
-        $datasUsadas = [];
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            (int) $marca['id'],
-            null,
-            'anuidade',
-            $marca['data_proxima_anuidade'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            (int) $marca['id'],
-            null,
-            'renovacao_marca',
-            $marca['data_renovacao'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            (int) $marca['id'],
-            null,
-            'oposicao',
-            $marca['data_oposicao'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            (int) $marca['id'],
-            null,
-            'prorrogacao',
-            $marca['data_prorrogacao'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            (int) $marca['id'],
-            null,
-            'manifestacao',
-            $marca['data_manifestacao'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            (int) $marca['id'],
-            null,
-            'vencimento',
-            $marca['data_vencimento'] ?? null
-        );
-
-        foreach ($prazosParaCriar as $prazo) {
-            $this->repository->save($prazo);
-        }
+        $this->sincronizarDatasDoAtivo('marca', (int) $marca['id'], [
+            'anuidade' => $marca['data_proxima_anuidade'] ?? null,
+            'renovacao_marca' => $marca['data_renovacao'] ?? null,
+            'oposicao' => $marca['data_oposicao'] ?? null,
+            'prorrogacao' => $marca['data_prorrogacao'] ?? null,
+            'manifestacao' => $marca['data_manifestacao'] ?? null,
+            'vencimento' => $marca['data_vencimento'] ?? null
+        ]);
     }
 
     public function syncPrazosFromPatente(array $patente): void
     {
-        $this->repository->deleteByPatente(
-            (int) $patente['id']
-        );
-
-        $prazosParaCriar = [];
-        $datasUsadas = [];
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            null,
-            (int) $patente['id'],
-            'anuidade',
-            $patente['data_proxima_anuidade'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            null,
-            (int) $patente['id'],
-            'manifestacao',
-            $patente['data_manifestacao'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            null,
-            (int) $patente['id'],
-            'prorrogacao',
-            $patente['data_prorrogacao'] ?? null
-        );
-
-        $this->adicionarPrazo(
-            $prazosParaCriar,
-            $datasUsadas,
-            null,
-            (int) $patente['id'],
-            'vencimento',
-            $patente['data_vencimento'] ?? null
-        );
-
-        foreach ($prazosParaCriar as $prazo) {
-            $this->repository->save($prazo);
-        }
+        $this->sincronizarDatasDoAtivo('patente', (int) $patente['id'], [
+            'anuidade' => $patente['data_proxima_anuidade'] ?? null,
+            'manifestacao' => $patente['data_manifestacao'] ?? null,
+            'prorrogacao' => $patente['data_prorrogacao'] ?? null,
+            'vencimento' => $patente['data_vencimento'] ?? null
+        ]);
     }
 
-    private function adicionarPrazo(
-        array &$prazos,
-        array &$datasUsadas,
-        ?int $marcaId,
-        ?int $patenteId,
-        string $tipo,
-        ?string $data
+    private function sincronizarDatasDoAtivo(
+        string $tipoAtivo,
+        int $ativoId,
+        array $prazos
     ): void {
-        if (
-            empty($data)
-            || isset($datasUsadas[$data])
-        ) {
-            return;
+        foreach ($prazos as $tipoPrazo => $dataVencimento) {
+            $this->repository->sincronizarPrazoAtivo(
+                $tipoAtivo,
+                $ativoId,
+                $tipoPrazo,
+                $dataVencimento
+            );
         }
-
-        $datasUsadas[$data] = true;
-
-        $prazos[] = $this->criarPrazo(
-            $marcaId,
-            $patenteId,
-            $tipo,
-            $data
-        );
-    }
-
-    private function criarPrazo(
-        ?int $marcaId,
-        ?int $patenteId,
-        string $tipo,
-        string $dataVencimento
-    ): array {
-        $dataVenc = new \DateTime($dataVencimento);
-
-        return [
-            'marca_id' => $marcaId,
-            'patente_id' => $patenteId,
-            'tipo' => $tipo,
-            'data_vencimento' => $dataVencimento,
-
-            'data_alerta_30' => (clone $dataVenc)
-                ->modify('-30 days')
-                ->format('Y-m-d'),
-
-            'data_alerta_15' => (clone $dataVenc)
-                ->modify('-15 days')
-                ->format('Y-m-d'),
-
-            'data_alerta_7' => (clone $dataVenc)
-                ->modify('-7 days')
-                ->format('Y-m-d'),
-
-            'status' => 'pendente',
-            'observacoes' => null
-        ];
     }
 
     public function processarNotificacoesDePrazos(

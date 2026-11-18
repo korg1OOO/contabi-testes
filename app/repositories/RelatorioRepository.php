@@ -24,6 +24,41 @@ class RelatorioRepository
         };
     }
 
+    public function temProcessosAtivos(
+        ?int $usuarioId,
+        array $filtros = []
+    ): bool {
+        $sql = "SELECT COUNT(*)
+                FROM (
+                    SELECT c.usuario_id, c.id AS cliente_id
+                    FROM marcas m
+                    INNER JOIN clientes c ON m.cliente_id = c.id
+                    WHERE m.status IN ('Em análise', 'Concedida')
+                    UNION ALL
+                    SELECT c.usuario_id, c.id AS cliente_id
+                    FROM patentes p
+                    INNER JOIN clientes c ON p.cliente_id = c.id
+                    WHERE p.status IN ('Depositada', 'Em exame', 'Concedida')
+                ) processos_ativos
+                WHERE 1 = 1";
+        $params = [];
+
+        if ($usuarioId !== null) {
+            $sql .= ' AND usuario_id = :usuario_id';
+            $params['usuario_id'] = $usuarioId;
+        }
+
+        if (!empty($filtros['cliente_id'])) {
+            $sql .= ' AND cliente_id = :cliente_id';
+            $params['cliente_id'] = (int) $filtros['cliente_id'];
+        }
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+
+        return (int) $stmt->fetchColumn() > 0;
+    }
+
     private function marcasPorCliente(?int $usuarioId, array $filtros): array
     {
         $sql = "SELECT c.nome AS cliente, c.cpf_cnpj AS documento, m.numero_processo AS processo, m.titular AS titular, m.classe_nice AS classe, m.status AS status, DATE_FORMAT(m.data_deposito, '%d/%m/%Y') AS deposito FROM marcas m INNER JOIN clientes c ON m.cliente_id = c.id WHERE 1=1";

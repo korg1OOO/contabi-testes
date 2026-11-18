@@ -79,6 +79,11 @@ document.addEventListener('DOMContentLoaded', () => {
         'input[name="data_deposito"], ' +
         'input[name="data_concessao"], ' +
         'input[name="data_vencimento"], ' +
+        'input[name="data_proxima_anuidade"], ' +
+        'input[name="data_renovacao"], ' +
+        'input[name="data_oposicao"], ' +
+        'input[name="data_prorrogacao"], ' +
+        'input[name="data_manifestacao"], ' +
         'input[name="data_inicial"], ' +
         'input[name="data_final"]'
     ).forEach((campo) => {
@@ -127,7 +132,16 @@ function dataCivilBR(valor) {
 
 function validarDatasFormulario(form) {
     if (!form) return;
-    const nomes = ['data_deposito', 'data_concessao', 'data_vencimento'];
+    const nomes = [
+        'data_deposito',
+        'data_concessao',
+        'data_vencimento',
+        'data_proxima_anuidade',
+        'data_renovacao',
+        'data_oposicao',
+        'data_prorrogacao',
+        'data_manifestacao'
+    ];
     const campos = Object.fromEntries(nomes.map(n => [n, form.querySelector(`[name="${n}"]`)]));
     const datas = {};
     for (const nome of nomes) {

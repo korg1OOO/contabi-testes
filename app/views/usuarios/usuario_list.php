@@ -8,6 +8,7 @@ $usuariosDesativados = array_values(array_filter(
     $usuarios,
     static fn(array $usuario): bool => !(bool) ($usuario['ativo'] ?? false)
 ));
+$totalUsuarios = count($usuarios);
 
 $abasUsuarios = [
     'ativos' => [
@@ -54,9 +55,15 @@ $abaInicial = isset($_GET['desativado']) ? 'desativados' : 'ativos';
 <div class="main-content">
     <div class="topbar">
         <span class="page-title">Usuários</span>
-        <a href="<?= URL_BASE ?>/usuarios/cadastrar" class="btn btn-primary btn-sm">
-            <i class="bi bi-person-plus"></i> Novo Usuário
-        </a>
+        <div class="d-flex align-items-center gap-3">
+            <div class="text-end">
+                <div class="text-muted small">Total de usuários cadastrados</div>
+                <strong class="fs-5"><?= $totalUsuarios ?></strong>
+            </div>
+            <a href="<?= URL_BASE ?>/usuarios/cadastrar" class="btn btn-primary btn-sm">
+                <i class="bi bi-person-plus"></i> Novo Usuário
+            </a>
+        </div>
     </div>
 
     <?php if (isset($_GET['desativado'])): ?>

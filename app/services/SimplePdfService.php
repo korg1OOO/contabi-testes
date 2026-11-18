@@ -4,13 +4,22 @@ namespace app\services;
 
 class SimplePdfService
 {
-    public function gerar(string $titulo, array $dados): string
+    public function gerar(
+        string $titulo,
+        array $dados,
+        ?string $aviso = null
+    ): string
     {
         $linhas = [
             $titulo,
             'Gerado em ' . date('d/m/Y H:i'),
             str_repeat('-', 95)
         ];
+
+        if ($aviso !== null && trim($aviso) !== '') {
+            $linhas[] = $aviso;
+            $linhas[] = '';
+        }
 
         if (!$dados) {
             $linhas[] = 'Nenhum registro encontrado.';

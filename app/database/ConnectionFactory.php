@@ -8,6 +8,7 @@ use PDO;
 class ConnectionFactory
 {
     private static ?PDO $connection = null;
+    private static bool $migrationsApplied = false;
 
     public static function getConnection()
     {
@@ -30,6 +31,12 @@ class ConnectionFactory
                 self::$connection = self::createConnection($dsn);
             }
         }
+
+        if (!self::$migrationsApplied) {
+            (new DatabaseMigrator())->migrate(self::$connection);
+            self::$migrationsApplied = true;
+        }
+
         return self::$connection;
     }
 

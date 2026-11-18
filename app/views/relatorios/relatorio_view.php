@@ -42,6 +42,12 @@
         </div>
     <?php endif; ?>
 
+    <?php if (($semProcessosAtivos ?? null) === true): ?>
+        <div class="alert alert-warning" role="status">
+            Sua carteira não possui processos ativos para este relatório. Os dados disponíveis, se houver, podem incluir processos arquivados.
+        </div>
+    <?php endif; ?>
+
     <div class="card">
     <div class="table-responsive">
         <table class="table table-striped mb-0">
@@ -59,7 +65,11 @@
                 <?php if (!$dados): ?>
                     <tr>
                         <td class="text-center text-muted py-5">
-                            Nenhum registro encontrado para os filtros informados.
+                            <?php if (($semProcessosAtivos ?? null) === true): ?>
+                                Não há processos ativos na carteira para incluir neste relatório.
+                            <?php else: ?>
+                                Nenhum registro encontrado para os filtros informados.
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endif; ?>

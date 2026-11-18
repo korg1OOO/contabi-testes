@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS prazos (
     data_alerta_15 DATE NULL,
     data_alerta_7 DATE NULL,
     notificado BOOLEAN NOT NULL DEFAULT FALSE,
+    origem ENUM('manual', 'ativo') NOT NULL DEFAULT 'manual',
     status ENUM('pendente', 'cumprido', 'vencido', 'cancelado') NOT NULL DEFAULT 'pendente',
     observacoes TEXT NULL,
     criado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

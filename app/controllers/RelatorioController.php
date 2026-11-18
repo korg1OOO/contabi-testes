@@ -52,6 +52,7 @@ class RelatorioController extends Controller
 
         $erro = null;
         $dados = [];
+        $semProcessosAtivos = null;
 
         if (!in_array($tipo, $this->tiposPermitidos, true)) {
             $erro = 'O tipo de relatório informado é inválido.';
@@ -59,6 +60,10 @@ class RelatorioController extends Controller
             $erro = 'Informe um período válido no formato dd/mm/aaaa.';
         } else {
             try {
+                $semProcessosAtivos = !$this->repository->temProcessosAtivos(
+                    $usuarioId,
+                    $filtros
+                );
                 $dados = $this->repository->gerar(
                     $tipo,
                     $usuarioId,
@@ -76,6 +81,7 @@ class RelatorioController extends Controller
             'titulo' => $this->titulo($tipo),
             'dados' => $dados,
             'filtros' => $filtros,
+            'semProcessosAtivos' => $semProcessosAtivos,
             'erro' => $erro
         ]);
     }
@@ -99,6 +105,10 @@ class RelatorioController extends Controller
         }
 
         try {
+            $semProcessosAtivos = !$this->repository->temProcessosAtivos(
+                $usuarioId,
+                $filtros
+            );
             $dados = $this->repository->gerar(
                 $tipo,
                 $usuarioId,
@@ -109,7 +119,10 @@ class RelatorioController extends Controller
 
             $pdf = (new SimplePdfService())->gerar(
                 $this->titulo($tipo),
-                $dados
+                $dados,
+                $semProcessosAtivos
+                    ? 'Aviso: sua carteira não possui processos ativos para este relatório.'
+                    : null
             );
         } catch (Throwable $e) {
             $this->redirect(URL_BASE . '/relatorios');

@@ -107,8 +107,158 @@ class PrazoRepository
 
     public function save(array $data): bool
     {
-        $stmt = $this->conn->prepare('INSERT INTO prazos (marca_id, patente_id, tipo, data_vencimento, data_alerta_30, data_alerta_15, data_alerta_7, status, observacoes) VALUES (:marca_id, :patente_id, :tipo, :data_vencimento, :data_alerta_30, :data_alerta_15, :data_alerta_7, :status, :observacoes)');
+        $data['origem'] = $data['origem'] ?? 'manual';
+        $stmt = $this->conn->prepare('INSERT INTO prazos (marca_id, patente_id, tipo, data_vencimento, data_alerta_30, data_alerta_15, data_alerta_7, status, observacoes, origem) VALUES (:marca_id, :patente_id, :tipo, :data_vencimento, :data_alerta_30, :data_alerta_15, :data_alerta_7, :status, :observacoes, :origem)');
         return $stmt->execute($data);
+    }
+
+    public function sincronizarPrazoAtivo(
+        string $tipoAtivo,
+        int $ativoId,
+        string $tipoPrazo,
+        ?string $dataVencimento
+    ): void {
+        $campoAtivo = match ($tipoAtivo) {
+            'marca' => 'marca_id',
+            'patente' => 'patente_id',
+            default => throw new \InvalidArgumentException('Tipo de ativo inválido.')
+        };
+
+        $sql = "SELECT id, data_vencimento
+                FROM prazos
+                WHERE {$campoAtivo} = :ativo_id
+                  AND tipo = :tipo
+                  AND origem = 'ativo'
+                ORDER BY id";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([
+            'ativo_id' => $ativoId,
+            'tipo' => $tipoPrazo
+        ]);
+        $prazos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($dataVencimento === null || $dataVencimento === '') {
+            foreach ($prazos as $prazo) {
+                $this->excluirPrazoSincronizado((int) $prazo['id']);
+            }
+            return;
+        }
+
+        if (!$prazos) {
+            $sql = "SELECT id, data_vencimento
+                    FROM prazos
+                    WHERE {$campoAtivo} = :ativo_id
+                      AND tipo = :tipo
+                      AND data_vencimento = :data_vencimento
+                      AND origem = 'manual'
+                    ORDER BY id
+                    LIMIT 1";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([
+                'ativo_id' => $ativoId,
+                'tipo' => $tipoPrazo,
+                'data_vencimento' => $dataVencimento
+            ]);
+            $prazoManual = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($prazoManual) {
+                $this->conn->prepare(
+                    "UPDATE prazos SET origem = 'ativo' WHERE id = :id"
+                )->execute(['id' => (int) $prazoManual['id']]);
+                $prazos[] = $prazoManual;
+            }
+        }
+
+        if (!$prazos) {
+            $this->inserirPrazoSincronizado(
+                $tipoAtivo,
+                $ativoId,
+                $tipoPrazo,
+                $dataVencimento
+            );
+            return;
+        }
+
+        foreach ($prazos as $prazo) {
+            $prazoId = (int) $prazo['id'];
+
+            if ($prazo['data_vencimento'] === $dataVencimento) {
+                continue;
+            }
+
+            $this->removerNotificacoesDoPrazo($prazoId);
+            $datasAlerta = $this->datasDeAlerta($dataVencimento);
+
+            $this->conn->prepare(
+                "UPDATE prazos
+                 SET data_vencimento = :data_vencimento,
+                     data_alerta_30 = :data_alerta_30,
+                     data_alerta_15 = :data_alerta_15,
+                     data_alerta_7 = :data_alerta_7,
+                     status = 'pendente',
+                     notificado = 0,
+                     origem = 'ativo'
+                 WHERE id = :id"
+            )->execute([
+                'data_vencimento' => $dataVencimento,
+                'data_alerta_30' => $datasAlerta[30],
+                'data_alerta_15' => $datasAlerta[15],
+                'data_alerta_7' => $datasAlerta[7],
+                'id' => $prazoId
+            ]);
+        }
+    }
+
+    private function inserirPrazoSincronizado(
+        string $tipoAtivo,
+        int $ativoId,
+        string $tipoPrazo,
+        string $dataVencimento
+    ): void {
+        $datasAlerta = $this->datasDeAlerta($dataVencimento);
+        $marcaId = $tipoAtivo === 'marca' ? $ativoId : null;
+        $patenteId = $tipoAtivo === 'patente' ? $ativoId : null;
+
+        $this->save([
+            'marca_id' => $marcaId,
+            'patente_id' => $patenteId,
+            'tipo' => $tipoPrazo,
+            'data_vencimento' => $dataVencimento,
+            'data_alerta_30' => $datasAlerta[30],
+            'data_alerta_15' => $datasAlerta[15],
+            'data_alerta_7' => $datasAlerta[7],
+            'status' => 'pendente',
+            'observacoes' => null,
+            'origem' => 'ativo'
+        ]);
+    }
+
+    private function datasDeAlerta(string $dataVencimento): array
+    {
+        $data = new \DateTime($dataVencimento);
+
+        return [
+            30 => (clone $data)->modify('-30 days')->format('Y-m-d'),
+            15 => (clone $data)->modify('-15 days')->format('Y-m-d'),
+            7 => (clone $data)->modify('-7 days')->format('Y-m-d')
+        ];
+    }
+
+    private function excluirPrazoSincronizado(int $prazoId): void
+    {
+        $this->removerNotificacoesDoPrazo($prazoId);
+        $this->conn->prepare(
+            "DELETE FROM prazos WHERE id = :id AND origem = 'ativo'"
+        )->execute(['id' => $prazoId]);
+    }
+
+    private function removerNotificacoesDoPrazo(int $prazoId): void
+    {
+        $this->conn->prepare(
+            'DELETE FROM notificacoes WHERE link LIKE :link'
+        )->execute([
+            'link' => '%prazo_id=' . $prazoId . '&alerta=%'
+        ]);
     }
 
     public function update(array $data, ?int $usuarioId = null): bool

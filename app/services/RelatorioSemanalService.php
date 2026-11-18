@@ -83,6 +83,9 @@ class RelatorioSemanalService
             }
 
             try {
+                $temProcessosAtivos = $relatorioRepo->temProcessosAtivos(
+                    $usuarioId
+                );
                 $dados =
                     $relatorioRepo->gerar(
                         'situacao_processos',
@@ -118,7 +121,10 @@ class RelatorioSemanalService
                 $pdf =
                     $pdfService->gerar(
                         $titulo,
-                        $dados
+                        $dados,
+                        $temProcessosAtivos
+                            ? null
+                            : 'Aviso: sua carteira não possui processos ativos. O relatório contém os dados disponíveis.'
                     );
 
                 $caminho =
@@ -154,7 +160,29 @@ class RelatorioSemanalService
                         $fim
                 ]);
 
-                if (!$dados) {
+                if (!$temProcessosAtivos) {
+                    $notificacaoRepo
+                        ->criarNotificacao([
+                            'usuario_id' =>
+                                $usuarioId,
+
+                            'tipo' =>
+                                'sistema',
+
+                            'titulo' =>
+                                'Relatório semanal sem processos ativos',
+
+                            'mensagem' =>
+                                'O relatório semanal foi gerado, mas sua '
+                                . 'carteira não possui processos ativos. '
+                                . 'O arquivo contém os dados disponíveis.',
+
+                            'link' =>
+                                URL_BASE
+                                . '/assets/relatorios/'
+                                . $arquivo
+                        ]);
+                } elseif (!$dados) {
                     $notificacaoRepo
                         ->criarNotificacao([
                             'usuario_id' =>
