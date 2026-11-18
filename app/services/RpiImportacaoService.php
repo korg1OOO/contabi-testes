@@ -86,11 +86,11 @@ class RpiImportacaoService
         }
 
         if ($extensao === 'pdf') {
-            $arquivo = [$this->extrairTextoPdf($arquivo, $temporarios)];
+            $arquivo = $this->extrairTextoPdf($arquivo, $temporarios);
 
             return [[
               "arquivo" => $arquivo,
-              "extensao" => $extensao
+              "extensao" => "txt"
             ]];
         }
 
@@ -684,7 +684,7 @@ class RpiImportacaoService
             if (!preg_match('/\((?:21|11)\)\s*([^\r\n]+)/u', $bloco, $numeroMatch)) {
                 continue;
             }
-            $numeroProcesso = trim(preg_replace('/\s+(?:A\d|B\d|C\d|U\d)\s*$/i', '', $numeroMatch[1]));
+            $numeroProcesso = trim(preg_replace('/\s+[A-Z]\d\s*$/i', '', $numeroMatch[1]));
             $patente = $patenteRepo->findByNumeroProcessoAndUsuario($numeroProcesso, $usuarioId);
             if (!$patente) {
                 continue;
