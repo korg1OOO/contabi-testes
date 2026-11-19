@@ -136,19 +136,10 @@
 
                     <?php foreach ($prazos as $prazo): ?>
                         <?php
-                        $dias = (int) (new DateTime())
-                            ->diff(new DateTime($prazo['data_vencimento']))
-                            ->format('%r%a');
-
-                        $classe = $dias < 0
-                            ? 'prazo-vencido'
-                            : ($dias <= 7
-                                ? 'prazo-urgente'
-                                : ($dias <= 30 ? 'prazo-notif' : 'prazo-ok'));
-
-                        $texto = $dias < 0
-                            ? 'Vencido há ' . abs($dias) . ' dias'
-                            : ($dias === 0 ? 'Vence hoje' : 'Vence em ' . $dias . ' dias');
+                        $situacao = \app\helpers\PrazoHelper::situacao(
+                            $prazo['data_vencimento'],
+                            (string) $prazo['status']
+                        );
                         ?>
 
                         <tr id="prazo-<?= (int) $prazo['id'] ?>">
@@ -162,16 +153,23 @@
                             <td><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $prazo['tipo']))) ?></td>
                             <td><?= date('d/m/Y', strtotime($prazo['data_vencimento'])) ?></td>
                             <td>
-                                <span class="prazo-badge <?= $classe ?>"><?= $texto ?></span>
+                                <span class="prazo-badge <?= $situacao['classe'] ?>">
+                                    <?php if (!in_array($situacao['chave'], ['cumprido', 'cancelado'], true)): ?>
+                                        <strong><?= htmlspecialchars($situacao['rotulo']) ?></strong> ·
+                                    <?php endif; ?>
+                                    <?= htmlspecialchars($situacao['texto']) ?>
+                                </span>
                             </td>
                             <td>
                                 <span class="badge bg-secondary"><?= ucfirst($prazo['status']) ?></span>
                             </td>
                             <td class="text-end">
-                                <div class="btn-group btn-group-sm">
+                                <div class="acoes-tabela">
                                     <a
                                         href="<?= URL_BASE ?>/prazos/editar?id=<?= (int) $prazo['id'] ?>"
-                                        class="btn btn-outline-primary"
+                                        class="btn btn-acao btn-outline-primary"
+                                        title="Editar"
+                                        aria-label="Editar prazo"
                                     >
                                         <i class="bi bi-pencil"></i>
                                     </a>
@@ -184,7 +182,7 @@
                                                 value="<?= htmlspecialchars($csrf_token) ?>"
                                             >
                                             <input type="hidden" name="id" value="<?= (int) $prazo['id'] ?>">
-                                            <button class="btn btn-outline-success" title="Concluir">
+                                            <button class="btn btn-acao btn-outline-success" title="Concluir" aria-label="Concluir prazo">
                                                 <i class="bi bi-check-lg"></i>
                                             </button>
                                         </form>
@@ -201,7 +199,7 @@
                                             value="<?= htmlspecialchars($csrf_token) ?>"
                                         >
                                         <input type="hidden" name="id" value="<?= (int) $prazo['id'] ?>">
-                                        <button class="btn btn-outline-danger">
+                                        <button class="btn btn-acao btn-outline-danger" title="Excluir" aria-label="Excluir prazo">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </form>

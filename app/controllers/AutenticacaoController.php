@@ -16,6 +16,12 @@ class AutenticacaoController extends Controller
 
     public function login()
     {
+        $this->semCache();
+
+        if ($this->usuarioLogado()) {
+            $this->redirect(URL_BASE . '/dashboard');
+        }
+
         $this->view('/autenticacao/login');
     }
 
@@ -51,6 +57,7 @@ class AutenticacaoController extends Controller
 
     public function logout()
     {
+        $this->semCache();
         $this->authService->logout();
         $this->redirect(URL_BASE . '/login');
     }

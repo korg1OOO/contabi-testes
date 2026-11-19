@@ -70,6 +70,7 @@ class UsuarioController extends Controller
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros['email'] = 'E-mail inválido';
         if (empty($senha)) $erros['senha'] = 'Senha é obrigatória';
         if (!in_array($perfil, $perfisPermitidos, true)) $erros['perfil'] = 'Perfil inválido';
+        if (!isset($erros['cpf']) && ($msgCpf = $this->mensagemCpfExistente($cpf, true))) $erros['cpf'] = $msgCpf;
 
         if (!empty($senha)) {
             if (strlen($senha) < 8) $erros['senha'] = 'Mínimo 8 caracteres';
@@ -96,7 +97,7 @@ class UsuarioController extends Controller
             $data['erros']['geral'] = 'Erro ao salvar usuário.';
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
-                $data['erros']['cpf'] = 'Este CPF já está cadastrado.';
+                $data['erros']['cpf'] = $this->mensagemCpfExistente($cpf, true) ?? 'Este CPF já está cadastrado.';
             } else {
                 error_log($e->getMessage());
                 $data['erros']['geral'] = 'Erro ao salvar usuário.';
@@ -256,6 +257,8 @@ class UsuarioController extends Controller
             if (!preg_match('/[^A-Za-z0-9]/', $senha)) $erros['senha'] = 'Precisa de caractere especial';
         }
 
+        if (!isset($erros['cpf']) && ($msgCpf = $this->mensagemCpfExistente($cpf, false))) $erros['cpf'] = $msgCpf;
+
         if (!empty($erros)) {
             $data['erros'] = $erros;
             $data['old'] = $old;
@@ -273,7 +276,7 @@ class UsuarioController extends Controller
             $data['erros']['geral'] = 'Não foi possível concluir o cadastro.';
         } catch (PDOException $e) {
             if ($e->getCode() === '23000') {
-                $data['erros']['cpf'] = 'Este CPF já está cadastrado.';
+                $data['erros']['cpf'] = $this->mensagemCpfExistente($cpf, false) ?? 'Este CPF já está cadastrado.';
             } else {
                 error_log($e->getMessage());
                 $data['erros']['geral'] = 'Não foi possível concluir o cadastro.';
@@ -282,5 +285,22 @@ class UsuarioController extends Controller
 
         $data['old'] = $old;
         $this->view('usuarios/register', $data);
+    }
+
+    private function mensagemCpfExistente(string $cpf, bool $paraAdmin): ?string
+    {
+        $existente = $this->repository->findByCpfQualquerStatus($cpf);
+
+        if (!$existente) {
+            return null;
+        }
+
+        if (!$existente->isAtivo()) {
+            return $paraAdmin
+                ? 'Este CPF pertence a uma conta desativada. Reative-a na lista de usuários.'
+                : 'Este CPF pertence a uma conta desativada. Entre em contato com o administrador para reativá-la.';
+        }
+
+        return 'Este CPF já está cadastrado.';
     }
 }

@@ -16,15 +16,24 @@ class AutenticacaoService
     {
         $cpf = preg_replace('/[^0-9]/', '', $cpf);
 
-        $usuario = $this->repo->findByCpf($cpf);
+        $usuario = $this->repo->findByCpfQualquerStatus($cpf);
 
         if (!$usuario || !password_verify($senha, $usuario->getSenha())) {
             return ['sucesso' => false, 'erro' => 'CPF ou senha incorretos.'];
         }
 
+        if (!$usuario->isAtivo()) {
+            return [
+                'sucesso' => false,
+                'erro' => 'Esta conta está desativada. Entre em contato com o administrador do sistema.'
+            ];
+        }
+
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+
+        session_regenerate_id(true);
 
         $_SESSION['usuario'] = [
             'id'     => $usuario->getId(),
@@ -41,6 +50,14 @@ class AutenticacaoService
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
+
+        $_SESSION = [];
+
+        if (ini_get('session.use_cookies')) {
+            $p = session_get_cookie_params();
+            setcookie(session_name(), '', time() - 42000, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+        }
+
         session_destroy();
     }
 }

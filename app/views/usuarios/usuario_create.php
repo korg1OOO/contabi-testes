@@ -27,55 +27,41 @@
         <div class="card-body p-4">
             <form action="<?= URL_BASE ?>/usuarios/salvar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                <?php require __DIR__ . '/../partials/alertas.php'; ?>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nome Completo</label>
-                        <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
-                        <?php if(isset($erros['nome'])): ?>
-                            <div class="text-danger small"><?= $erros['nome'] ?></div>
-                        <?php endif; ?>
+                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">CPF</label>
-                        <input type="text" name="cpf" class="form-control" value="<?= htmlspecialchars($old['cpf'] ?? '') ?>" 
+                        <input type="text" name="cpf" class="form-control <?= isset($erros['cpf']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['cpf'] ?? '') ?>" 
                                maxlength="14" oninput="mascaraCPF(this)" required>
-                        <?php if(isset($erros['cpf'])): ?>
-                            <div class="text-danger small"><?= $erros['cpf'] ?></div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">E-mail</label>
                         <input type="email" name="email" class="form-control <?= isset($erros['email']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
-                        <?php if(isset($erros['email'])): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($erros['email']) ?></div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Telefone</label>
-                        <input type="text" name="telefone" class="form-control" value="<?= htmlspecialchars($old['telefone'] ?? '') ?>">
+                        <input type="text" name="telefone" class="form-control <?= isset($erros['telefone']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['telefone'] ?? '') ?>">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Senha</label>
-                        <input type="password" name="senha" class="form-control" required>
-                        <?php if(isset($erros['senha'])): ?>
-                            <div class="text-danger small"><?= $erros['senha'] ?></div>
-                        <?php endif; ?>
+                        <input type="password" name="senha" class="form-control <?= isset($erros['senha']) ? 'is-invalid' : '' ?>" required>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Perfil</label>
-                        <select name="perfil" class="form-select" required>
+                        <select name="perfil" class="form-select <?= isset($erros['perfil']) ? 'is-invalid' : '' ?>" required>
                             <option value="consultor" <?= (($old['perfil'] ?? 'consultor') === 'consultor') ? 'selected' : '' ?>>Consultor</option>
                             <option value="agente_pi" <?= (($old['perfil'] ?? '') === 'agente_pi') ? 'selected' : '' ?>>Agente de PI</option>
                             <option value="administrador" <?= (($old['perfil'] ?? '') === 'administrador') ? 'selected' : '' ?>>Administrador</option>
                         </select>
-                        <?php if(isset($erros['perfil'])): ?>
-                            <div class="text-danger small"><?= htmlspecialchars($erros['perfil']) ?></div>
-                        <?php endif; ?>
                     </div>
                 </div>
 

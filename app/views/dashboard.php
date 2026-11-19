@@ -58,9 +58,9 @@
                 <div class="card-header bg-white d-flex justify-content-between align-items-center"><strong>Próximos vencimentos</strong><a href="<?= URL_BASE ?>/prazos" class="btn btn-sm btn-outline-primary">Ver agenda</a></div>
                 <div class="list-group list-group-flush">
                     <?php if (!$proximosPrazos): ?><div class="text-center text-muted py-4">Nenhum prazo cadastrado.</div><?php endif; ?>
-                    <?php foreach ($proximosPrazos as $prazo): $dias=(int)(new DateTime())->diff(new DateTime($prazo['data_vencimento']))->format('%r%a'); ?>
+                    <?php foreach ($proximosPrazos as $prazo): $dias = \app\helpers\PrazoHelper::diasRestantes($prazo['data_vencimento']); ?>
                         <a href="<?= URL_BASE ?>/prazos?prazo_id=<?= (int)$prazo['id'] ?>" class="list-group-item list-group-item-action py-3">
-                            <div class="d-flex justify-content-between"><strong><?= htmlspecialchars($prazo['numero_processo']) ?></strong><span class="<?= $dias < 0 ? 'text-danger' : ($dias <= 7 ? 'text-warning' : 'text-muted') ?>"><?= date('d/m/Y', strtotime($prazo['data_vencimento'])) ?></span></div>
+                            <div class="d-flex justify-content-between"><strong><?= htmlspecialchars($prazo['numero_processo']) ?></strong><span class="<?= $dias < 0 ? 'text-danger' : ($dias <= 7 ? 'text-warning' : ($dias <= 15 ? 'text-info' : 'text-muted')) ?>"><?= date('d/m/Y', strtotime($prazo['data_vencimento'])) ?></span></div>
                             <small class="text-muted"><?= htmlspecialchars(ucfirst(str_replace('_', ' ', $prazo['tipo']))) ?> • <?= htmlspecialchars($prazo['cliente_nome']) ?></small>
                         </a>
                     <?php endforeach; ?>

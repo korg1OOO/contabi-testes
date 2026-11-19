@@ -97,6 +97,38 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     document.querySelectorAll('form').forEach((form) => {
+        const inicial = form.querySelector('input[name="data_inicial"]');
+        const final = form.querySelector('input[name="data_final"]');
+        if (!inicial || !final) return;
+
+        const validarPeriodo = () => {
+            const vi = inicial.value.trim();
+            const vf = final.value.trim();
+            inicial.setCustomValidity('');
+            final.setCustomValidity('');
+
+            if (vi && !vf) final.setCustomValidity('Informe também a data final.');
+            if (!vi && vf) inicial.setCustomValidity('Informe também a data inicial.');
+
+            const di = dataCivilBR(vi);
+            const df = dataCivilBR(vf);
+            if (vi && /^\d{2}\/\d{2}\/\d{4}$/.test(vi) && !di) inicial.setCustomValidity('Data inválida. Verifique dia, mês e ano.');
+            if (vf && /^\d{2}\/\d{2}\/\d{4}$/.test(vf) && !df) final.setCustomValidity('Data inválida. Verifique dia, mês e ano.');
+            if (di && df && di > df) final.setCustomValidity('A data final não pode ser anterior à inicial.');
+        };
+
+        inicial.addEventListener('input', validarPeriodo);
+        final.addEventListener('input', validarPeriodo);
+        form.addEventListener('submit', (e) => {
+            validarPeriodo();
+            if (!form.checkValidity()) {
+                e.preventDefault();
+                form.reportValidity();
+            }
+        });
+    });
+
+    document.querySelectorAll('form').forEach((form) => {
         if (!form.querySelector('input[name="data_deposito"]')) return;
         validarDatasFormulario(form);
         form.addEventListener('submit', () => validarDatasFormulario(form));
@@ -232,6 +264,11 @@ function validarDatasFormulario(form) {
         if (datas[nome] === null && /^\d{2}\/\d{2}\/\d{4}$/.test(campo.value.trim())) {
             campo.setCustomValidity('Data inválida. Verifique dia, mês e ano.');
         }
+    }
+    const agora = new Date();
+    const hoje = `${agora.getFullYear()}-${String(agora.getMonth() + 1).padStart(2, '0')}-${String(agora.getDate()).padStart(2, '0')}`;
+    if (datas.data_deposito && datas.data_deposito > hoje) {
+        campos.data_deposito.setCustomValidity('A data de depósito não pode ser uma data futura.');
     }
     if (datas.data_deposito && datas.data_vencimento && datas.data_vencimento < datas.data_deposito) {
         campos.data_vencimento.setCustomValidity('O vencimento não pode ser anterior ao depósito.');

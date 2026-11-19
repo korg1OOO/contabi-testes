@@ -114,19 +114,7 @@
 
                 <div class="card-body p-4">
 
-                    <?php if (!empty($sucesso)): ?>
-                        <div class="alert alert-success">
-                            <i class="bi bi-check-circle me-2"></i>
-                            <?= htmlspecialchars($sucesso) ?>
-                        </div>
-                    <?php endif; ?>
-
-                    <?php if (!empty($erro)): ?>
-                        <div class="alert alert-danger">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            <?= htmlspecialchars($erro) ?>
-                        </div>
-                    <?php endif; ?>
+                    <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
                     <div class="alert alert-info">
                         <div class="d-flex gap-2">

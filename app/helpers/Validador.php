@@ -94,6 +94,11 @@ class Validador
             }
         }
 
+        if (!isset($erros['data_deposito']) && !empty($dados['data_deposito'])
+            && $dados['data_deposito'] > date('Y-m-d')) {
+            $erros['data_deposito'] = 'A Data de Depósito não pode ser uma data futura.';
+        }
+
         if (!isset($erros['data_deposito']) && !empty($dados['data_deposito'])) {
             if (!isset($erros['data_vencimento']) && !empty($dados['data_vencimento'])
                 && $dados['data_vencimento'] < $dados['data_deposito']) {

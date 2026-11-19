@@ -56,8 +56,8 @@ class RelatorioController extends Controller
 
         if (!in_array($tipo, $this->tiposPermitidos, true)) {
             $erro = 'O tipo de relatório informado é inválido.';
-        } elseif (!$this->datasValidas($filtros)) {
-            $erro = 'Informe um período válido no formato dd/mm/aaaa.';
+        } elseif (($erroPeriodo = $this->erroPeriodo($filtros)) !== null) {
+            $erro = $erroPeriodo;
         } else {
             try {
                 $semProcessosAtivos = !$this->repository->temProcessosAtivos(
@@ -188,24 +188,33 @@ class RelatorioController extends Controller
 
     private function datasValidas(array $filtros): bool
     {
-        foreach (['data_inicial', 'data_final'] as $campo) {
-            if (
-                $filtros[$campo] !== ''
-                && !$this->dataValidaBanco($filtros[$campo])
-            ) {
-                return false;
+        return $this->erroPeriodo($filtros) === null;
+    }
+
+    private function erroPeriodo(array $filtros): ?string
+    {
+        $inicial = $filtros['data_inicial'];
+        $final = $filtros['data_final'];
+
+        if ($inicial !== '' && $final === '') {
+            return 'Informe também a data final para filtrar por período (ou deixe as duas datas em branco para ver todo o histórico).';
+        }
+
+        if ($inicial === '' && $final !== '') {
+            return 'Informe também a data inicial para filtrar por período (ou deixe as duas datas em branco para ver todo o histórico).';
+        }
+
+        foreach (['data_inicial' => 'inicial', 'data_final' => 'final'] as $campo => $rotulo) {
+            if ($filtros[$campo] !== '' && !$this->dataValidaBanco($filtros[$campo])) {
+                return "A data {$rotulo} é inválida. Use o formato dd/mm/aaaa.";
             }
         }
 
-        if (
-            $filtros['data_inicial'] !== ''
-            && $filtros['data_final'] !== ''
-            && $filtros['data_inicial'] > $filtros['data_final']
-        ) {
-            return false;
+        if ($inicial !== '' && $inicial > $final) {
+            return 'A data inicial não pode ser posterior à data final.';
         }
 
-        return true;
+        return null;
     }
 
     private function dataValidaBanco(string $data): bool

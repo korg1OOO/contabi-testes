@@ -58,6 +58,10 @@
                 >
 
                 <div class="col-12">
+                    <?php require __DIR__ . '/../partials/alertas.php'; ?>
+                </div>
+
+                <div class="col-12">
                     <label class="form-label">
                         Processo
                     </label>
@@ -73,9 +77,11 @@
                         </option>
 
                         <?php foreach ($ativos as $ativo): ?>
+                            <?php $valorAtivo = $ativo['tipo'] . ':' . (int) $ativo['id']; ?>
                             <option
-                                value="<?= $ativo['tipo'] ?>:<?= (int) $ativo['id'] ?>"
+                                value="<?= htmlspecialchars($valorAtivo) ?>"
                                 data-tipo-ativo="<?= htmlspecialchars($ativo['tipo']) ?>"
+                                <?= ($old['ativo'] ?? '') === $valorAtivo ? 'selected' : '' ?>
                             >
                                 <?= htmlspecialchars(
                                     ucfirst($ativo['tipo'])
@@ -100,7 +106,7 @@
                     <select
                         name="tipo"
                         id="prazo-tipo"
-                        class="form-select"
+                        class="form-select <?= isset($erros['tipo']) ? 'is-invalid' : '' ?>"
                         required
                     >
                         <option value="">Selecione primeiro um processo</option>
@@ -118,6 +124,7 @@
                             <option
                                 value="<?= $valor ?>"
                                 data-tipos-ativo="<?= htmlspecialchars($tiposAtivo) ?>"
+                                <?= ($old['tipo'] ?? '') === $valor ? 'selected' : '' ?>
                             >
                                 <?= $label ?>
                             </option>
@@ -138,7 +145,8 @@
                     <input
                         type="text"
                         name="data_vencimento"
-                        class="form-control"
+                        value="<?= htmlspecialchars($old['data_vencimento'] ?? '') ?>"
+                        class="form-control <?= isset($erros['data_vencimento']) ? 'is-invalid' : '' ?>"
                         placeholder="dd/mm/aaaa"
                         maxlength="10"
                         inputmode="numeric"
@@ -181,7 +189,7 @@
                         name="observacoes"
                         class="form-control"
                         rows="4"
-                    ></textarea>
+                    ><?= htmlspecialchars($old['observacoes'] ?? '') ?></textarea>
                 </div>
 
                 <div class="col-12 d-flex justify-content-end gap-2">

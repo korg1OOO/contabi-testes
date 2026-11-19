@@ -17,7 +17,12 @@
 <div class="main-content">
     <div class="topbar"><span class="page-title">Novo documento</span></div>
     <div class="card"><div class="card-body p-4">
-        <?php if (isset($_GET['erro'])): ?><div class="alert alert-danger">Não foi possível enviar o arquivo.</div><?php endif; ?>
+        <?php
+        if (isset($_GET['erro'])) {
+            $erro = 'Não foi possível enviar o arquivo.';
+        }
+        require __DIR__ . '/../partials/alertas.php';
+        ?>
         <form method="post" action="<?= URL_BASE ?>/documentos/salvar" enctype="multipart/form-data" class="row g-3">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <div class="col-md-6">

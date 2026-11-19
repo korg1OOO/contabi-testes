@@ -21,9 +21,7 @@
                     <strong><i class="bi bi-exclamation-triangle me-2"></i>Exclusão definitiva da conta</strong>
                 </div>
                 <div class="card-body">
-                    <?php if (!empty($erro)): ?>
-                        <div class="alert alert-danger"><?= htmlspecialchars($erro) ?></div>
-                    <?php endif; ?>
+                    <?php require __DIR__ . '/../partials/alertas.php'; ?>
                     <p>Esta operação excluirá sua conta e os dados vinculados à sua carteira, incluindo clientes, marcas, patentes, prazos, documentos, notificações e relatórios automáticos.</p>
                     <p class="fw-semibold text-danger">A operação não pode ser desfeita.</p>
                     <form method="POST" action="<?= URL_BASE ?>/minha-conta/excluir-dados">

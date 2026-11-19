@@ -25,16 +25,7 @@
         <div class="card-body p-4">
             <form action="<?= URL_BASE ?>/marcas/salvar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
-                <?php if (!empty($erros)): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <strong>Não foi possível salvar.</strong> Corrija as informações abaixo:
-                        <ul class="mb-0 mt-1">
-                            <?php foreach ($erros as $mensagem): ?>
-                                <li><?= htmlspecialchars($mensagem, ENT_QUOTES, 'UTF-8') ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                <?php endif; ?>
+                <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Cliente</label>
@@ -93,23 +84,23 @@
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Próxima Anuidade</label>
-                        <input type="text" name="data_proxima_anuidade" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_proxima_anuidade'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_proxima_anuidade" class="form-control <?= isset($erros['data_proxima_anuidade']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_proxima_anuidade'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Renovação</label>
-                        <input type="text" name="data_renovacao" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_renovacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_renovacao" class="form-control <?= isset($erros['data_renovacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_renovacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Oposição</label>
-                        <input type="text" name="data_oposicao" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_oposicao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_oposicao" class="form-control <?= isset($erros['data_oposicao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_oposicao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Prorrogação</label>
-                        <input type="text" name="data_prorrogacao" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_prorrogacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_prorrogacao" class="form-control <?= isset($erros['data_prorrogacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_prorrogacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Manifestação</label>
-                        <input type="text" name="data_manifestacao" class="form-control" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_manifestacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_manifestacao" class="form-control <?= isset($erros['data_manifestacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_manifestacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                 </div>
 

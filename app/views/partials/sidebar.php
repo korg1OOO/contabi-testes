@@ -22,3 +22,10 @@
         <a href="<?= URL_BASE ?>/logout" class="nav-link"><i class="bi bi-box-arrow-left"></i> Sair</a>
     </div>
 </nav>
+<script>
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) {
+            window.location.reload();
+        }
+    });
+</script>

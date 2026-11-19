@@ -8,6 +8,8 @@ use app\services\PrazoService;
 
 class PrazoController extends Controller
 {
+    private const ERRO_TIPO_PRAZO = 'Renovação de marca e oposição só podem ser vinculadas a marcas.';
+
     private PrazoRepository $repository;
     private PrazoService $service;
 
@@ -69,15 +71,20 @@ class PrazoController extends Controller
             ? null
             : (int) $this->usuarioLogado()['id'];
 
-        $data = $this->dadosFormulario();
+        try {
+            $data = $this->dadosFormulario();
+        } catch (\InvalidArgumentException $e) {
+            $this->exibirFormularioCadastro($usuarioId, ['data_vencimento' => $e->getMessage()]);
+            return;
+        }
 
         if (!$this->ativoPermitido($data, $usuarioId)) {
             $this->negarAcesso();
         }
 
         if (!$this->tipoPrazoPermitido($data)) {
-            http_response_code(422);
-            exit('Renovação de marca e oposição só podem ser vinculadas a marcas.');
+            $this->exibirFormularioCadastro($usuarioId, ['tipo' => self::ERRO_TIPO_PRAZO]);
+            return;
         }
 
         $this->repository->save($data);
@@ -124,11 +131,19 @@ class PrazoController extends Controller
 
         $id = (int) ($_POST['id'] ?? 0);
 
-        if (!$this->repository->findById($id, $usuarioId)) {
+        $prazoAtual = $this->repository->findById($id, $usuarioId);
+
+        if (!$prazoAtual) {
             $this->negarAcesso();
         }
 
-        $data = $this->dadosFormulario();
+        try {
+            $data = $this->dadosFormulario();
+        } catch (\InvalidArgumentException $e) {
+            $this->exibirFormularioEdicao($prazoAtual, $usuarioId, ['data_vencimento' => $e->getMessage()]);
+            return;
+        }
+
         $data['id'] = $id;
 
         if (!$this->ativoPermitido($data, $usuarioId)) {
@@ -136,8 +151,8 @@ class PrazoController extends Controller
         }
 
         if (!$this->tipoPrazoPermitido($data)) {
-            http_response_code(422);
-            exit('Renovação de marca e oposição só podem ser vinculadas a marcas.');
+            $this->exibirFormularioEdicao($prazoAtual, $usuarioId, ['tipo' => self::ERRO_TIPO_PRAZO]);
+            return;
         }
 
         $this->repository->update($data, $usuarioId);
@@ -296,6 +311,26 @@ class PrazoController extends Controller
         }
 
         return false;
+    }
+
+    private function exibirFormularioCadastro(?int $usuarioId, array $erros): void
+    {
+        $this->view('prazos/prazo_create', [
+            'ativos' => $this->repository->getAtivosDisponiveis($usuarioId),
+            'csrf_token' => $this->csrfToken(),
+            'erros' => $erros,
+            'old' => $_POST
+        ]);
+    }
+
+    private function exibirFormularioEdicao(array $prazoAtual, ?int $usuarioId, array $erros): void
+    {
+        $this->view('prazos/prazo_edit', [
+            'prazo' => $prazoAtual,
+            'ativos' => $this->repository->getAtivosDisponiveis($usuarioId),
+            'csrf_token' => $this->csrfToken(),
+            'erros' => $erros
+        ]);
     }
 
     private function tipoPrazoPermitido(array $data): bool

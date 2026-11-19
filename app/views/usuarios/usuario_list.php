@@ -66,15 +66,18 @@ $abaInicial = isset($_GET['desativado']) ? 'desativados' : 'ativos';
         </div>
     </div>
 
-    <?php if (isset($_GET['desativado'])): ?>
-        <div class="alert alert-success" role="status">
-        Usuário desativado. Ele está na aba “Desativados”.
-        </div>
-    <?php elseif (isset($_GET['ativado'])): ?>
-        <div class="alert alert-success" role="status">
-            Usuário reativado. Ele está na aba “Ativos”.
-        </div>
-    <?php endif; ?>
+    <?php
+    if (isset($_GET['desativado'])) {
+        $sucesso = 'Usuário desativado. Ele está na aba “Desativados”.';
+    } elseif (isset($_GET['ativado'])) {
+        $sucesso = 'Usuário reativado. Ele está na aba “Ativos”.';
+    } elseif (isset($_GET['cadastro'])) {
+        $sucesso = 'Usuário cadastrado com sucesso.';
+    } elseif (isset($_GET['atualizado'])) {
+        $sucesso = 'Usuário atualizado com sucesso.';
+    }
+    require __DIR__ . '/../partials/alertas.php';
+    ?>
 
     <div class="card">
         <div class="card-header bg-white border-bottom-0 pt-3 px-4">

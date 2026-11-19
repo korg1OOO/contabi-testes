@@ -24,39 +24,30 @@
                 <p class="text-muted small">Gestão de Propriedade Industrial</p>
             </div>
 
-            <?php if (!empty($erros)): ?>
-                <div class="alert alert-danger">
-                    <?php foreach ($erros as $erro): ?>
-                        <div><?= $erro ?></div>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
+            <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
             <form action="<?= URL_BASE ?>/register" method="post">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">Nome Completo</label>
-                        <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">CPF</label>
-                        <input type="text" name="cpf" class="form-control" value="<?= htmlspecialchars($old['cpf'] ?? '') ?>" 
+                        <input type="text" name="cpf" class="form-control <?= isset($erros['cpf']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['cpf'] ?? '') ?>" 
                                maxlength="14" oninput="mascaraCPF(this)" required>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">E-mail</label>
                         <input type="email" name="email" class="form-control <?= isset($erros['email']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['email'] ?? '') ?>">
-                        <?php if(isset($erros['email'])): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($erros['email']) ?></div>
-                        <?php endif; ?>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">Telefone</label>
-                        <input type="text" name="telefone" class="form-control" value="<?= htmlspecialchars($old['telefone'] ?? '') ?>">
+                        <input type="text" name="telefone" class="form-control <?= isset($erros['telefone']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['telefone'] ?? '') ?>">
                     </div>
                     <div class="col-12">
                         <label class="form-label small fw-semibold">Senha</label>
-                        <input type="password" name="senha" class="form-control" required>
+                        <input type="password" name="senha" class="form-control <?= isset($erros['senha']) ? 'is-invalid' : '' ?>" required>
                         <small class="text-muted">Mínimo 8 caracteres, com maiúscula, número e símbolo.</small>
                     </div>
                 </div>

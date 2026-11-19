@@ -7,6 +7,8 @@ if ($uri !== '/' && is_file($arquivoFisico)) {
     return false;
 }
 
+date_default_timezone_set('America/Sao_Paulo');
+
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../app/core/Autoload.php';
 require_once __DIR__ . '/../app/config/Config.php';

@@ -19,7 +19,9 @@
     <div class="topbar">
         <div>
             <span class="page-title"><?= htmlspecialchars($titulo) ?></span>
-            <div class="text-muted small"><?= count($dados) ?> registro(s)</div>
+            <?php if (empty($erro)): ?>
+                <div class="text-muted small"><?= count($dados) ?> registro(s)</div>
+            <?php endif; ?>
         </div>
 
         <div class="d-flex gap-2">
@@ -36,18 +38,14 @@
         </div>
     </div>
 
-    <?php if (!empty($erro)): ?>
-        <div class="alert alert-danger" role="alert">
-            <?= htmlspecialchars($erro) ?>
-        </div>
-    <?php endif; ?>
+    <?php
+    if (($semProcessosAtivos ?? null) === true) {
+        $aviso = 'Sua carteira não possui processos ativos para este relatório. Os dados disponíveis, se houver, podem incluir processos arquivados.';
+    }
+    require __DIR__ . '/../partials/alertas.php';
+    ?>
 
-    <?php if (($semProcessosAtivos ?? null) === true): ?>
-        <div class="alert alert-warning" role="status">
-            Sua carteira não possui processos ativos para este relatório. Os dados disponíveis, se houver, podem incluir processos arquivados.
-        </div>
-    <?php endif; ?>
-
+    <?php if (empty($erro)): ?>
     <div class="card">
     <div class="table-responsive">
         <table class="table table-striped mb-0">
@@ -106,6 +104,7 @@
         </table>
     </div>
 </div>
+    <?php endif; ?>
 </div>
 </body>
 </html>

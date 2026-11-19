@@ -56,9 +56,7 @@
         </div>
     </div>
 
-    <?php if (!empty($erro)): ?>
-        <div class="alert alert-danger"><?= htmlspecialchars($erro) ?></div>
-    <?php endif; ?>
+    <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
     <?php if (($termo ?? '') !== '' && empty($erro)): ?>
         <div class="card">

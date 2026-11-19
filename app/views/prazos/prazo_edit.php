@@ -89,6 +89,10 @@
                 >
 
                 <div class="col-12">
+                    <?php require __DIR__ . '/../partials/alertas.php'; ?>
+                </div>
+
+                <div class="col-12">
                     <label class="form-label">
                         Processo
                     </label>
@@ -144,7 +148,7 @@
                     <select
                         name="tipo"
                         id="prazo-tipo"
-                        class="form-select"
+                        class="form-select <?= isset($erros['tipo']) ? 'is-invalid' : '' ?>"
                         required
                     >
                         <option value="">Selecione um tipo de prazo</option>
@@ -193,7 +197,7 @@
                                 )
                                 : ''
                         ?>"
-                        class="form-control"
+                        class="form-control <?= isset($erros['data_vencimento']) ? 'is-invalid' : '' ?>"
                         placeholder="dd/mm/aaaa"
                         maxlength="10"
                         inputmode="numeric"

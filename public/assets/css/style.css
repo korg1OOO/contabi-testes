@@ -228,3 +228,47 @@ body {
         flex-wrap: wrap;
     }
 }
+
+.alert-contabi {
+    border: none;
+    border-left: 4px solid currentColor;
+    border-radius: 10px;
+    font-size: .92rem;
+}
+
+.alert-contabi > .bi {
+    font-size: 1.1rem;
+    line-height: 1.3;
+}
+
+.prazo-atencao   { background: #cff4fc; color: #055160; }
+.prazo-concluido { background: #e5e7eb; color: #374151; }
+
+.prazo-badge {
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.acoes-tabela {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: .375rem;
+}
+
+.acoes-tabela form {
+    display: inline-flex;
+    margin: 0;
+}
+
+.btn-acao {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: .95rem;
+    line-height: 1;
+}

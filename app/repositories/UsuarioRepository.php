@@ -23,6 +23,15 @@ class UsuarioRepository
         return $data ? Usuario::fromArray($data) : null;
     }
 
+    public function findByCpfQualquerStatus(string $cpf): ?Usuario
+    {
+        $cpf = preg_replace('/[^0-9]/', '', $cpf);
+        $stmt = $this->conn->prepare("SELECT * FROM usuarios WHERE cpf = :cpf LIMIT 1");
+        $stmt->execute(['cpf' => $cpf]);
+        $data = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $data ? Usuario::fromArray($data) : null;
+    }
+
     public function findById(int $id): ?Usuario
     {
         $stmt = $this->conn->prepare("SELECT * FROM usuarios WHERE id = :id");

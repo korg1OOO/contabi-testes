@@ -57,12 +57,16 @@
                 <p class="text-muted small mb-0">Gestão de Propriedade Industrial</p>
             </div>
 
-            <?php if (!empty($erros)): ?>
-                <div class="alert alert-danger d-flex align-items-center py-2">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    <div><?= is_array($erros) ? implode('<br>', $erros) : $erros ?></div>
-                </div>
-            <?php endif; ?>
+            <?php
+            if (isset($_GET['cadastro'])) {
+                $sucesso = 'Conta criada com sucesso. Faça login para continuar.';
+            } elseif (isset($_GET['conta_excluida'])) {
+                $sucesso = 'Seus dados foram excluídos.';
+            } elseif (isset($_GET['conta_desativada'])) {
+                $aviso = 'Sua conta foi desativada e a sessão foi encerrada. Entre em contato com o administrador do sistema.';
+            }
+            require __DIR__ . '/../partials/alertas.php';
+            ?>
 
             <form action="<?= URL_BASE ?>/logar" method="post">
                 <!-- CPF -->

@@ -26,18 +26,11 @@
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
                 <input type="hidden" name="id" value="<?= (int)($cliente['id'] ?? 0) ?>">
 
-                <?php if (!empty($erros)): ?>
-                    <div class="alert alert-danger" role="alert">
-                        <?= htmlspecialchars($erros['geral'] ?? 'Corrija os campos destacados abaixo.', ENT_QUOTES, 'UTF-8') ?>
-                    </div>
-                <?php endif; ?>
+                <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Nome</label>
                     <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($cliente['nome'] ?? '') ?>" required>
-                    <?php if (isset($erros['nome'])): ?>
-                        <div class="invalid-feedback"><?= htmlspecialchars($erros['nome']) ?></div>
-                    <?php endif; ?>
                 </div>
 
                 <div class="mb-3">
@@ -60,26 +53,17 @@
                         inputmode="numeric"
                         required
                     >
-                    <?php if (isset($erros['cpf_cnpj'])): ?>
-                        <div class="invalid-feedback"><?= htmlspecialchars($erros['cpf_cnpj']) ?></div>
-                    <?php endif; ?>
                 </div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">E-mail</label>
                         <input type="email" name="email" class="form-control <?= isset($erros['email']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($cliente['email'] ?? '') ?>">
-                        <?php if (isset($erros['email'])): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($erros['email']) ?></div>
-                        <?php endif; ?>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Telefone</label>
                         <input type="tel" name="telefone" class="form-control <?= isset($erros['telefone']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($cliente['telefone'] ?? '', ENT_QUOTES, 'UTF-8') ?>" placeholder="(00) 00000-0000" maxlength="15" inputmode="tel" aria-describedby="telefone-ajuda">
-                        <?php if (isset($erros['telefone'])): ?>
-                            <div class="invalid-feedback"><?= htmlspecialchars($erros['telefone'], ENT_QUOTES, 'UTF-8') ?></div>
-                        <?php endif; ?>
                         <div id="telefone-ajuda" class="form-text">DDD + 8 ou 9 números (telefone opcional).</div>
                     </div>
 
