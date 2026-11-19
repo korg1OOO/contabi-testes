@@ -95,6 +95,7 @@
 
                     <select
                         name="ativo"
+                        id="prazo-ativo"
                         class="form-select"
                         required
                     >
@@ -117,6 +118,7 @@
 
                             <option
                                 value="<?= htmlspecialchars($ativo['tipo']) ?>:<?= (int) $ativo['id'] ?>"
+                                data-tipo-ativo="<?= htmlspecialchars($ativo['tipo']) ?>"
                                 <?= $selecionado ? 'selected' : '' ?>
                             >
                                 <?= htmlspecialchars(
@@ -141,20 +143,24 @@
 
                     <select
                         name="tipo"
+                        id="prazo-tipo"
                         class="form-select"
                         required
                     >
+                        <option value="">Selecione um tipo de prazo</option>
                         <?php foreach ([
-                            'anuidade' => 'Anuidade',
-                            'renovacao_marca' => 'Renovação de marca',
-                            'oposicao' => 'Oposição',
-                            'prorrogacao' => 'Prorrogação',
-                            'manifestacao' => 'Manifestação',
-                            'outro' => 'Outro'
-                        ] as $valor => $label): ?>
+                            'anuidade' => ['Anuidade', 'marca patente'],
+                            'renovacao_marca' => ['Renovação de marca', 'marca'],
+                            'oposicao' => ['Oposição', 'marca'],
+                            'prorrogacao' => ['Prorrogação', 'marca patente'],
+                            'manifestacao' => ['Manifestação', 'marca patente'],
+                            'vencimento' => ['Vencimento', 'marca patente'],
+                            'outro' => ['Outro', 'marca patente']
+                        ] as $valor => [$label, $tiposAtivo]): ?>
 
                             <option
                                 value="<?= htmlspecialchars($valor) ?>"
+                                data-tipos-ativo="<?= htmlspecialchars($tiposAtivo) ?>"
                                 <?= $prazo['tipo'] === $valor ? 'selected' : '' ?>
                             >
                                 <?= htmlspecialchars($label) ?>
@@ -162,6 +168,9 @@
 
                         <?php endforeach; ?>
                     </select>
+                    <div class="form-text text-danger" data-tipo-prazo-feedback hidden>
+                        Renovação de marca e oposição só podem ser vinculadas a marcas.
+                    </div>
                 </div>
 
                 <div class="col-md-3">
@@ -249,6 +258,8 @@
         </div>
     </div>
 </div>
+
+<script src="<?= URL_BASE ?>/assets/js/mascaras.js"></script>
 
 </body>
 </html>

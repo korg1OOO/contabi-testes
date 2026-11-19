@@ -65,6 +65,8 @@ function configurarCampoDocumento(select, limpar = false) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    configurarTiposDePrazo();
+
     document.querySelectorAll('[data-documento-select]').forEach((select) => {
         const campo = document.getElementById(select.dataset.documentoInput);
 
@@ -108,6 +110,83 @@ document.addEventListener('DOMContentLoaded', () => {
         campo.addEventListener('input', () => mascaraTelefone(campo));
     });
 });
+
+function configurarTiposDePrazo() {
+    const ativoSelect = document.getElementById('prazo-ativo');
+    const tipoSelect = document.getElementById('prazo-tipo');
+
+    if (!ativoSelect || !tipoSelect) return;
+
+    const placeholder = tipoSelect.querySelector('option[value=""]');
+    const opcoesTipo = Array.from(tipoSelect.options).filter(
+        (option) => option.value !== ''
+    );
+    const feedback = tipoSelect.parentElement.querySelector(
+        '[data-tipo-prazo-feedback]'
+    );
+
+    opcoesTipo.forEach((option) => {
+        option.dataset.rotuloOriginal = option.textContent;
+    });
+
+    const atualizarTipos = (mudouAtivo = false) => {
+        const ativoOption = ativoSelect.selectedOptions[0];
+        const tipoAtivo = ativoOption?.dataset.tipoAtivo;
+        const tipoAtual = tipoSelect.value;
+
+        if (placeholder) {
+            placeholder.hidden = Boolean(tipoAtivo);
+            placeholder.disabled = Boolean(tipoAtivo);
+        }
+
+        if (!tipoAtivo) {
+            tipoSelect.value = '';
+            tipoSelect.disabled = true;
+            tipoSelect.setCustomValidity('Selecione um processo primeiro.');
+            if (feedback) feedback.hidden = true;
+            return;
+        }
+
+        tipoSelect.disabled = false;
+        const opcoesPermitidas = [];
+        let tipoAtualPermitido = false;
+
+        opcoesTipo.forEach((option) => {
+            const tiposAtivo = (option.dataset.tiposAtivo || '').split(/\s+/);
+            const permitido = tiposAtivo.includes(tipoAtivo);
+            const manterLegadoSelecionado = !permitido
+                && !mudouAtivo
+                && option.value === tipoAtual;
+
+            option.hidden = !permitido && !manterLegadoSelecionado;
+            option.disabled = !permitido && !manterLegadoSelecionado;
+            option.textContent = permitido
+                ? option.dataset.rotuloOriginal
+                : `${option.dataset.rotuloOriginal} — incompatível com patente; selecione outro`;
+
+            if (permitido) opcoesPermitidas.push(option);
+            if (option.value === tipoAtual && permitido) tipoAtualPermitido = true;
+        });
+
+        if (tipoAtualPermitido) {
+            tipoSelect.value = tipoAtual;
+        } else if (mudouAtivo || !tipoAtual) {
+            tipoSelect.value = opcoesPermitidas[0]?.value || '';
+        }
+
+        const invalido = !opcoesTipo.some(
+            (option) => option.value === tipoSelect.value
+                && (option.dataset.tiposAtivo || '').split(/\s+/).includes(tipoAtivo)
+        );
+        const mensagem = 'Esse tipo de prazo não se aplica ao ativo selecionado. Escolha um tipo compatível.';
+        tipoSelect.setCustomValidity(invalido ? mensagem : '');
+        if (feedback) feedback.hidden = !invalido;
+    };
+
+    atualizarTipos();
+    ativoSelect.addEventListener('change', () => atualizarTipos(true));
+    tipoSelect.addEventListener('change', () => atualizarTipos());
+}
 
 function mascaraTelefone(campo) {
     const numeros = campo.value.replace(/\D/g, '').slice(0, 11);

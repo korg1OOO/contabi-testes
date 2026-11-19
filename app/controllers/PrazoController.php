@@ -75,6 +75,11 @@ class PrazoController extends Controller
             $this->negarAcesso();
         }
 
+        if (!$this->tipoPrazoPermitido($data)) {
+            http_response_code(422);
+            exit('Renovação de marca e oposição só podem ser vinculadas a marcas.');
+        }
+
         $this->repository->save($data);
 
         if ($usuarioId !== null) {
@@ -128,6 +133,11 @@ class PrazoController extends Controller
 
         if (!$this->ativoPermitido($data, $usuarioId)) {
             $this->negarAcesso();
+        }
+
+        if (!$this->tipoPrazoPermitido($data)) {
+            http_response_code(422);
+            exit('Renovação de marca e oposição só podem ser vinculadas a marcas.');
         }
 
         $this->repository->update($data, $usuarioId);
@@ -283,6 +293,36 @@ class PrazoController extends Controller
             ) {
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    private function tipoPrazoPermitido(array $data): bool
+    {
+        $tiposMarca = [
+            'anuidade',
+            'renovacao_marca',
+            'oposicao',
+            'prorrogacao',
+            'manifestacao',
+            'vencimento',
+            'outro'
+        ];
+        $tiposPatente = [
+            'anuidade',
+            'prorrogacao',
+            'manifestacao',
+            'vencimento',
+            'outro'
+        ];
+
+        if (!empty($data['marca_id'])) {
+            return in_array($data['tipo'], $tiposMarca, true);
+        }
+
+        if (!empty($data['patente_id'])) {
+            return in_array($data['tipo'], $tiposPatente, true);
         }
 
         return false;

@@ -64,6 +64,7 @@
 
                     <select
                         name="ativo"
+                        id="prazo-ativo"
                         class="form-select"
                         required
                     >
@@ -74,6 +75,7 @@
                         <?php foreach ($ativos as $ativo): ?>
                             <option
                                 value="<?= $ativo['tipo'] ?>:<?= (int) $ativo['id'] ?>"
+                                data-tipo-ativo="<?= htmlspecialchars($ativo['tipo']) ?>"
                             >
                                 <?= htmlspecialchars(
                                     ucfirst($ativo['tipo'])
@@ -97,26 +99,35 @@
 
                     <select
                         name="tipo"
+                        id="prazo-tipo"
                         class="form-select"
                         required
                     >
+                        <option value="">Selecione primeiro um processo</option>
 
                         <?php foreach ([
-                            'anuidade' => 'Anuidade',
-                            'renovacao_marca' => 'Renovação de marca',
-                            'oposicao' => 'Oposição',
-                            'prorrogacao' => 'Prorrogação',
-                            'manifestacao' => 'Manifestação',
-                            'outro' => 'Outro'
-                        ] as $valor => $label): ?>
+                            'anuidade' => ['Anuidade', 'marca patente'],
+                            'renovacao_marca' => ['Renovação de marca', 'marca'],
+                            'oposicao' => ['Oposição', 'marca'],
+                            'prorrogacao' => ['Prorrogação', 'marca patente'],
+                            'manifestacao' => ['Manifestação', 'marca patente'],
+                            'vencimento' => ['Vencimento', 'marca patente'],
+                            'outro' => ['Outro', 'marca patente']
+                        ] as $valor => [$label, $tiposAtivo]): ?>
 
-                            <option value="<?= $valor ?>">
+                            <option
+                                value="<?= $valor ?>"
+                                data-tipos-ativo="<?= htmlspecialchars($tiposAtivo) ?>"
+                            >
                                 <?= $label ?>
                             </option>
 
                         <?php endforeach; ?>
 
                     </select>
+                    <div class="form-text text-danger" data-tipo-prazo-feedback hidden>
+                        Renovação de marca e oposição só podem ser vinculadas a marcas.
+                    </div>
                 </div>
 
                 <div class="col-md-3">
