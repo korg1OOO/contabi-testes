@@ -18,6 +18,7 @@
         <a href="<?= URL_BASE ?>/usuarios" class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], '/usuarios') ? 'active' : '' ?>"><i class="bi bi-person-gear"></i> Usuários</a>
     <?php endif; ?>
     <div class="mt-auto">
+        <a href="<?= URL_BASE ?>/minha-conta/editar" class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], '/minha-conta/editar') ? 'active' : '' ?>"><i class="bi bi-person-lines-fill"></i> Editar meus dados</a>
         <a href="<?= URL_BASE ?>/minha-conta/excluir-dados" class="nav-link text-danger"><i class="bi bi-person-x"></i> Excluir meus dados</a>
         <a href="<?= URL_BASE ?>/logout" class="nav-link"><i class="bi bi-box-arrow-left"></i> Sair</a>
     </div>

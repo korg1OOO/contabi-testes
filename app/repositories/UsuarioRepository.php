@@ -86,6 +86,15 @@ class UsuarioRepository
         ]);
     }
 
+    public function atualizarSenha(int $id, string $senha): bool
+    {
+        $stmt = $this->conn->prepare("UPDATE usuarios SET senha = :senha WHERE id = :id");
+        return $stmt->execute([
+            'senha' => password_hash($senha, PASSWORD_DEFAULT),
+            'id'    => $id
+        ]);
+    }
+
     public function deactivate(int $id): bool
     {
         $stmt = $this->conn->prepare("UPDATE usuarios SET ativo = 0 WHERE id = :id");

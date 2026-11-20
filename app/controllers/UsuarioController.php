@@ -224,6 +224,90 @@ class UsuarioController extends Controller
         $this->redirect(URL_BASE . '/usuarios?ativado=1');
     }
 
+    public function meusDados()
+    {
+        $this->autenticacaoRequired();
+        $usuario = $this->repository->findById((int) $this->usuarioLogado()['id']);
+
+        $this->view('usuarios/meus_dados', [
+            'usuario' => [
+                'nome'     => $usuario->getNome(),
+                'cpf'      => $usuario->getCpf(),
+                'email'    => $usuario->getEmail(),
+                'telefone' => $usuario->getTelefone()
+            ],
+            'sucesso' => isset($_GET['atualizado']) ? 'Seus dados foram atualizados.' : null,
+            'csrf_token' => $this->csrfToken()
+        ]);
+    }
+
+    public function salvarMeusDados()
+    {
+        $this->autenticacaoRequired();
+        $this->validarCsrf();
+
+        $usuarioAtual = $this->repository->findById((int) $this->usuarioLogado()['id']);
+
+        $nome          = trim($_POST['nome'] ?? '');
+        $email         = trim($_POST['email'] ?? '');
+        $telefone      = trim($_POST['telefone'] ?? '');
+        $senhaAtual    = $_POST['senha_atual'] ?? '';
+        $novaSenha     = $_POST['nova_senha'] ?? '';
+        $confirmacao   = $_POST['confirmar_senha'] ?? '';
+        $trocarSenha   = $senhaAtual !== '' || $novaSenha !== '' || $confirmacao !== '';
+
+        $erros = [];
+        if ($nome === '') $erros['nome'] = 'Nome é obrigatório';
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros['email'] = 'E-mail inválido';
+
+        if ($trocarSenha) {
+            if ($senhaAtual === '') {
+                $erros['senha_atual'] = 'Informe sua senha atual para trocar a senha';
+            } elseif (!password_verify($senhaAtual, $usuarioAtual->getSenha())) {
+                $erros['senha_atual'] = 'A senha atual está incorreta';
+            }
+
+            if ($novaSenha === '') $erros['nova_senha'] = 'Informe a nova senha';
+            elseif (strlen($novaSenha) < 8) $erros['nova_senha'] = 'A nova senha precisa ter no mínimo 8 caracteres';
+            elseif (!preg_match('/[A-Z]/', $novaSenha)) $erros['nova_senha'] = 'A nova senha precisa de letra maiúscula';
+            elseif (!preg_match('/[0-9]/', $novaSenha)) $erros['nova_senha'] = 'A nova senha precisa de número';
+            elseif (!preg_match('/[^A-Za-z0-9]/', $novaSenha)) $erros['nova_senha'] = 'A nova senha precisa de caractere especial';
+
+            if ($novaSenha !== $confirmacao) $erros['confirmar_senha'] = 'A confirmação não confere com a nova senha';
+        }
+
+        if ($erros) {
+            $this->view('usuarios/meus_dados', [
+                'erros' => $erros,
+                'usuario' => [
+                    'nome'     => $nome,
+                    'cpf'      => $usuarioAtual->getCpf(),
+                    'email'    => $email,
+                    'telefone' => $telefone
+                ],
+                'csrf_token' => $this->csrfToken()
+            ]);
+            return;
+        }
+
+        $this->repository->update(new Usuario(
+            $usuarioAtual->getId(),
+            $nome,
+            $usuarioAtual->getCpf(),
+            $email ?: null,
+            $telefone ?: null,
+            '',
+            $usuarioAtual->getPerfil()
+        ));
+
+        if ($trocarSenha) {
+            $this->repository->atualizarSenha($usuarioAtual->getId(), $novaSenha);
+        }
+
+        $_SESSION['usuario']['nome'] = $nome;
+        $this->redirect(URL_BASE . '/minha-conta/editar?atualizado=1');
+    }
+
     public function excluirDados()
     {
         $this->autenticacaoRequired();
