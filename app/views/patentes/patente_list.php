@@ -54,7 +54,7 @@
                                         <a href="<?= URL_BASE ?>/patentes/editar?id=<?= $p['id'] ?>" class="btn btn-sm btn-outline-secondary">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <form method="post" action="<?= URL_BASE ?>/patentes/excluir" class="d-inline" onsubmit="return confirm('Excluir patente?')">
+                                        <form novalidate method="post" action="<?= URL_BASE ?>/patentes/excluir" class="d-inline" onsubmit="return confirm('Excluir patente?')">
                                             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                             <input type="hidden" name="id" value="<?= $p['id'] ?>">
                                             <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>

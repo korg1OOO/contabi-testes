@@ -26,7 +26,7 @@ class DocumentoRepository
                 WHERE 1=1';
         $params = [];
         if ($usuarioId !== null) {
-            $sql .= ' AND COALESCE(c.usuario_id, cm.usuario_id, cp.usuario_id) = :usuario_id';
+            $sql .= ' AND COALESCE(c.usuario_id, cm.usuario_id, cp.usuario_id, d.uploaded_by) = :usuario_id';
             $params['usuario_id'] = $usuarioId;
         }
         $sql .= ' ORDER BY d.criado DESC';
@@ -52,7 +52,7 @@ class DocumentoRepository
                 WHERE d.id = :id';
         $params = ['id' => $id];
         if ($usuarioId !== null) {
-            $sql .= ' AND COALESCE(c.usuario_id, cm.usuario_id, cp.usuario_id) = :usuario_id';
+            $sql .= ' AND COALESCE(c.usuario_id, cm.usuario_id, cp.usuario_id, d.uploaded_by) = :usuario_id';
             $params['usuario_id'] = $usuarioId;
         }
         $stmt = $this->conn->prepare($sql);

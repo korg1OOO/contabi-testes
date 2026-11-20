@@ -22,19 +22,19 @@
 
     <div class="card col-lg-7">
         <div class="card-body p-4">
-            <form action="<?= URL_BASE ?>/clientes/salvar" method="post">
+            <form novalidate action="<?= URL_BASE ?>/clientes/salvar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
 
                 <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Nome</label>
-                    <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($cliente['nome'] ?? '') ?>" required>
+                    <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($cliente['nome'] ?? '') ?>">
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label fw-semibold">Tipo de Pessoa</label>
-                    <select name="tipo_pessoa" id="tipo_pessoa" class="form-select" required>
+                    <select name="tipo_pessoa" id="tipo_pessoa" class="form-select">
                         <option value="PF" <?= (($cliente['tipo_pessoa'] ?? '') === 'PF') ? 'selected' : '' ?>>Pessoa Física</option>
                         <option value="PJ" <?= (($cliente['tipo_pessoa'] ?? 'PJ') === 'PJ') ? 'selected' : '' ?>>Pessoa Jurídica</option>
                     </select>
@@ -50,7 +50,6 @@
                         value="<?= htmlspecialchars($cliente['cpf_cnpj'] ?? '') ?>"
                         maxlength="18"
                         inputmode="numeric"
-                        required
                     >
                 </div>
 

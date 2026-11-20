@@ -45,7 +45,7 @@
     <div class="card">
         <div class="card-body p-4">
 
-            <form
+            <form novalidate
                 method="post"
                 action="<?= URL_BASE ?>/prazos/salvar"
                 class="row g-3"
@@ -70,7 +70,6 @@
                         name="ativo"
                         id="prazo-ativo"
                         class="form-select"
-                        required
                     >
                         <option value="">
                             Selecione
@@ -107,7 +106,6 @@
                         name="tipo"
                         id="prazo-tipo"
                         class="form-select <?= isset($erros['tipo']) ? 'is-invalid' : '' ?>"
-                        required
                     >
                         <option value="">Selecione primeiro um processo</option>
 
@@ -150,10 +148,8 @@
                         placeholder="dd/mm/aaaa"
                         maxlength="10"
                         inputmode="numeric"
-                        pattern="\d{2}/\d{2}/\d{4}"
                         title="Informe a data no formato dd/mm/aaaa"
                         autocomplete="off"
-                        required
                     >
                 </div>
 

@@ -185,6 +185,9 @@ class MarcaController extends Controller
     private function validarFormulario(array &$dados): array
     {
         $erros = Validador::validarDatasRegistro($dados);
+        if ($dados['cliente_id'] <= 0) {
+            $erros['cliente_id'] = 'Selecione o cliente.';
+        }
         if ($dados['numero_processo'] === '') {
             $erros['numero_processo'] = 'Informe o número do processo.';
         } elseif (Validador::tamanho($dados['numero_processo']) > 30) {
@@ -198,7 +201,9 @@ class MarcaController extends Controller
         if (Validador::tamanho($dados['status']) > 50) {
             $erros['status'] = 'O status deve ter até 50 caracteres.';
         }
-        if ($dados['classe_nice'] < 1 || $dados['classe_nice'] > 45) {
+        if (trim((string) ($_POST['classe_nice'] ?? '')) === '') {
+            $erros['classe_nice'] = 'Informe a Classe Nice.';
+        } elseif ($dados['classe_nice'] < 1 || $dados['classe_nice'] > 45) {
             $erros['classe_nice'] = 'A Classe Nice deve estar entre 1 e 45.';
         }
         return $erros;

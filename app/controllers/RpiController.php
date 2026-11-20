@@ -28,6 +28,11 @@ class RpiController extends Controller
         $this->validarCsrf();
         $usuario = $this->usuarioLogado();
 
+        if (!in_array(trim($_POST['tipo_revista'] ?? ''), ['marcas', 'patentes'], true)) {
+            $this->view('rpi/upload_rpi', ['erro' => 'Selecione o tipo da revista (marcas ou patentes).']);
+            return;
+        }
+
         if (!isset($_FILES['arquivo_rpi'])) {
             $this->view('rpi/upload_rpi', ['erro' => 'Selecione um arquivo da RPI.']);
             return;

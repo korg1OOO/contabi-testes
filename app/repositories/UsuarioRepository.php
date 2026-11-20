@@ -42,7 +42,7 @@ class UsuarioRepository
 
     public function getAtivos(): array
     {
-        $stmt = $this->conn->query("SELECT id, ativo, nome, email FROM usuarios ORDER BY id");
+        $stmt = $this->conn->query("SELECT id, ativo, nome, email FROM usuarios WHERE ativo = 1 ORDER BY id");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

@@ -184,6 +184,9 @@ class PatenteController extends Controller
     private function validarFormulario(array &$dados): array
     {
         $erros = Validador::validarDatasRegistro($dados);
+        if ($dados['cliente_id'] <= 0) {
+            $erros['cliente_id'] = 'Selecione o cliente.';
+        }
         if ($dados['numero_processo'] === '') {
             $erros['numero_processo'] = 'Informe o número do processo.';
         } elseif (Validador::tamanho($dados['numero_processo']) > 30) {

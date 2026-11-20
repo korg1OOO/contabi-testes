@@ -243,7 +243,7 @@
 
                                         <?php if (empty($d['processado'])): ?>
 
-                                            <form
+                                            <form novalidate
                                                 action="<?= URL_BASE ?>/rpi/marcar-processado"
                                                 method="post"
                                                 class="d-inline"

@@ -53,6 +53,14 @@ class DocumentoController extends Controller
         );
     }
 
+    if ((int) ($_FILES['arquivo']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        $_SESSION['erro_documento'] = 'Selecione o arquivo que deseja enviar.';
+
+        $this->redirect(
+            URL_BASE . '/documentos/cadastrar'
+        );
+    }
+
     $marcaId = $this->idOuNull($_POST['marca_id'] ?? null);
     $patenteId = $this->idOuNull($_POST['patente_id'] ?? null);
     $clienteId = $this->idOuNull($_POST['cliente_id'] ?? null);

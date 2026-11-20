@@ -60,7 +60,7 @@ $relatorios = [
                         <h5><?= $dados[0] ?></h5>
                         <p class="text-muted"><?= $dados[2] ?></p>
 
-                        <form method="get" action="<?= URL_BASE ?>/relatorios/visualizar" class="row g-2">
+                        <form novalidate method="get" action="<?= URL_BASE ?>/relatorios/visualizar" class="row g-2">
                             <input type="hidden" name="tipo" value="<?= $tipo ?>">
 
                             <div class="col-12">
@@ -84,7 +84,6 @@ $relatorios = [
         placeholder="dd/mm/aaaa"
         maxlength="10"
         inputmode="numeric"
-        pattern="\d{2}/\d{2}/\d{4}"
     >
 </div>
 
@@ -97,7 +96,6 @@ $relatorios = [
         placeholder="dd/mm/aaaa"
         maxlength="10"
         inputmode="numeric"
-        pattern="\d{2}/\d{2}/\d{4}"
     >
 </div>
 

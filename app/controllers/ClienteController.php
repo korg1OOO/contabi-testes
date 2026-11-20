@@ -209,7 +209,9 @@ class ClienteController extends Controller
             }
         }
 
-        if ($dados['tipo_pessoa'] === 'PF') {
+        if ($dados['cpf_cnpj'] === '') {
+            $erros['cpf_cnpj'] = $dados['tipo_pessoa'] === 'PF' ? 'Informe o CPF.' : 'Informe o CNPJ.';
+        } elseif ($dados['tipo_pessoa'] === 'PF') {
             if (!Validador::cpfValido($dados['cpf_cnpj'])) {
                 $erros['cpf_cnpj'] = 'CPF inválido.';
             }

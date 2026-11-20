@@ -141,7 +141,7 @@
                         </div>
                     </div>
 
-                    <form
+                    <form novalidate
                         id="form-rpi-importacao"
                         method="POST"
                         action="<?= URL_BASE ?>/rpi/importar"
@@ -163,7 +163,6 @@
                                 <select
                                     name="tipo_revista"
                                     class="form-select"
-                                    required
                                 >
                                     <option value="">
                                         Selecione
@@ -200,7 +199,6 @@
                                     name="arquivo_rpi"
                                     class="form-control"
                                     accept=".zip,.xml,.txt,.pdf,application/zip,application/xml,text/xml,text/plain,application/pdf"
-                                    required
                                 >
 
                                 <div class="form-text">

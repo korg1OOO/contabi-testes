@@ -40,7 +40,7 @@
                     <tr><td colspan="6" class="text-center text-muted py-4">Nenhum documento cadastrado.</td></tr>
                 <?php else: ?>
                     <?php foreach ($documentos as $documento): ?>
-                        <?php $vinculo = $documento['cliente_nome'] ?: ($documento['marca_processo'] ? 'Marca ' . $documento['marca_processo'] : 'Patente ' . $documento['patente_processo']); ?>
+                        <?php $vinculo = $documento['cliente_nome'] ?: ($documento['marca_processo'] ? 'Marca ' . $documento['marca_processo'] : ($documento['patente_processo'] ? 'Patente ' . $documento['patente_processo'] : 'Sem vínculo')); ?>
                         <tr>
                             <td><?= htmlspecialchars($documento['nome_arquivo']) ?></td>
                             <td><?= htmlspecialchars(ucfirst($documento['tipo'])) ?></td>
@@ -49,7 +49,7 @@
                             <td><?= date('d/m/Y H:i', strtotime($documento['criado'])) ?></td>
                             <td class="text-end">
                                 <a href="<?= URL_BASE ?>/documentos/baixar?id=<?= (int)$documento['id'] ?>" class="btn btn-sm btn-outline-primary"><i class="bi bi-download"></i></a>
-                                <form method="post" action="<?= URL_BASE ?>/documentos/excluir" class="d-inline" onsubmit="return confirm('Excluir documento?')">
+                                <form novalidate method="post" action="<?= URL_BASE ?>/documentos/excluir" class="d-inline" onsubmit="return confirm('Excluir documento?')">
                                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                     <input type="hidden" name="id" value="<?= (int)$documento['id'] ?>">
                                     <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>

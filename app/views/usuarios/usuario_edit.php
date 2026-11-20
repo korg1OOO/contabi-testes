@@ -25,13 +25,14 @@
 
     <div class="card col-lg-8">
         <div class="card-body p-4">
-            <form action="<?= URL_BASE ?>/usuarios/atualizar" method="post">
+            <form novalidate action="<?= URL_BASE ?>/usuarios/atualizar" method="post">
                 <input type="hidden" name="id" value="<?= $usuario['id'] ?>">
+                <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nome Completo</label>
-                        <input type="text" name="nome" class="form-control" value="<?= htmlspecialchars($usuario['nome']) ?>" required>
+                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($usuario['nome']) ?>">
                     </div>
 
                     <div class="col-md-6">
@@ -42,7 +43,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">E-mail</label>
-                        <input type="email" name="email" class="form-control" value="<?= htmlspecialchars($usuario['email'] ?? '') ?>">
+                        <input type="email" name="email" class="form-control <?= isset($erros['email']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($usuario['email'] ?? '') ?>">
                     </div>
 
                     <div class="col-md-6">
@@ -52,7 +53,7 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Perfil</label>
-                        <select name="perfil" class="form-select" required>
+                        <select name="perfil" class="form-select <?= isset($erros['perfil']) ? 'is-invalid' : '' ?>">
                             <option value="consultor" <?= $usuario['perfil'] == 'consultor' ? 'selected' : '' ?>>Consultor</option>
                             <option value="agente_pi" <?= $usuario['perfil'] == 'agente_pi' ? 'selected' : '' ?>>Agente de PI</option>
                             <option value="administrador" <?= $usuario['perfil'] == 'administrador' ? 'selected' : '' ?>>Administrador</option>

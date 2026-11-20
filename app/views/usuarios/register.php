@@ -26,16 +26,16 @@
 
             <?php require __DIR__ . '/../partials/alertas.php'; ?>
 
-            <form action="<?= URL_BASE ?>/register" method="post">
+            <form novalidate action="<?= URL_BASE ?>/register" method="post">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">Nome Completo</label>
-                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['nome'] ?? '') ?>">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">CPF</label>
                         <input type="text" name="cpf" class="form-control <?= isset($erros['cpf']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['cpf'] ?? '') ?>" 
-                               maxlength="14" oninput="mascaraCPF(this)" required>
+                               maxlength="14" oninput="mascaraCPF(this)">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label small fw-semibold">E-mail</label>
@@ -47,7 +47,7 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label small fw-semibold">Senha</label>
-                        <input type="password" name="senha" class="form-control <?= isset($erros['senha']) ? 'is-invalid' : '' ?>" required>
+                        <input type="password" name="senha" class="form-control <?= isset($erros['senha']) ? 'is-invalid' : '' ?>">
                         <small class="text-muted">Mínimo 8 caracteres, com maiúscula, número e símbolo.</small>
                     </div>
                 </div>

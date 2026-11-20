@@ -19,6 +19,8 @@ class BuscaColisaoController extends Controller
 
         if (!$tabelaExiste) {
             $erro = 'A base de marcas do INPI ainda não foi instalada neste banco. Execute a migração do banco antes de importar a RPI.';
+        } elseif ($termo === '' && isset($_GET['termo'])) {
+            $erro = 'Informe a marca que deseja pesquisar.';
         } elseif ($termo !== '') {
             if ($classeNice < 1 || $classeNice > 45) {
                 $erro = 'Selecione uma classe Nice para realizar a busca.';

@@ -60,7 +60,7 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form method="get" action="<?= URL_BASE ?>/prazos" class="row g-3 align-items-end">
+            <form novalidate method="get" action="<?= URL_BASE ?>/prazos" class="row g-3 align-items-end">
                 <div class="col-lg-5">
                     <label class="form-label">Busca</label>
                     <input
@@ -175,7 +175,7 @@
                                     </a>
 
                                     <?php if ($prazo['status'] === 'pendente'): ?>
-                                        <form method="post" action="<?= URL_BASE ?>/prazos/concluir">
+                                        <form novalidate method="post" action="<?= URL_BASE ?>/prazos/concluir">
                                             <input
                                                 type="hidden"
                                                 name="csrf_token"
@@ -188,7 +188,7 @@
                                         </form>
                                     <?php endif; ?>
 
-                                    <form
+                                    <form novalidate
                                         method="post"
                                         action="<?= URL_BASE ?>/prazos/excluir"
                                         onsubmit="return confirm('Excluir este prazo?')"

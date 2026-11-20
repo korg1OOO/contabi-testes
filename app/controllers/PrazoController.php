@@ -71,6 +71,13 @@ class PrazoController extends Controller
             ? null
             : (int) $this->usuarioLogado()['id'];
 
+        $erros = $this->errosCamposObrigatorios();
+
+        if ($erros) {
+            $this->exibirFormularioCadastro($usuarioId, $erros);
+            return;
+        }
+
         try {
             $data = $this->dadosFormulario();
         } catch (\InvalidArgumentException $e) {
@@ -135,6 +142,13 @@ class PrazoController extends Controller
 
         if (!$prazoAtual) {
             $this->negarAcesso();
+        }
+
+        $erros = $this->errosCamposObrigatorios();
+
+        if ($erros) {
+            $this->exibirFormularioEdicao($prazoAtual, $usuarioId, $erros);
+            return;
         }
 
         try {
@@ -311,6 +325,25 @@ class PrazoController extends Controller
         }
 
         return false;
+    }
+
+    private function errosCamposObrigatorios(): array
+    {
+        $erros = [];
+
+        if (trim($_POST['ativo'] ?? '') === '') {
+            $erros['ativo'] = 'Selecione o processo.';
+        }
+
+        if (trim($_POST['tipo'] ?? '') === '') {
+            $erros['tipo'] = 'Selecione o tipo de prazo.';
+        }
+
+        if (trim($_POST['data_vencimento'] ?? '') === '') {
+            $erros['data_vencimento'] = 'A data de vencimento é obrigatória.';
+        }
+
+        return $erros;
     }
 
     private function exibirFormularioCadastro(?int $usuarioId, array $erros): void

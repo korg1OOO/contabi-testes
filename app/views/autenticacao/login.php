@@ -68,14 +68,14 @@
             require __DIR__ . '/../partials/alertas.php';
             ?>
 
-            <form action="<?= URL_BASE ?>/logar" method="post">
+            <form novalidate action="<?= URL_BASE ?>/logar" method="post">
                 <!-- CPF -->
                 <div class="mb-3">
                     <label class="form-label small fw-semibold">CPF</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
                         <input type="text" class="form-control" name="cpf" placeholder="000.000.000-00" 
-                               maxlength="14" required oninput="mascaraCPF(this)">
+                               maxlength="14" oninput="mascaraCPF(this)">
                     </div>
                 </div>
 
@@ -84,7 +84,7 @@
                     <label class="form-label small fw-semibold">Senha</label>
                     <div class="input-group">
                         <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                        <input type="password" class="form-control" name="senha" placeholder="Sua senha" required>
+                        <input type="password" class="form-control" name="senha" placeholder="Sua senha">
                     </div>
                 </div>
 

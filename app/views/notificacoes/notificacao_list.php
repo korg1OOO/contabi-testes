@@ -22,7 +22,7 @@
             <div class="text-muted small">Alertas de prazos e despachos</div>
         </div>
 
-        <form method="post" action="<?= URL_BASE ?>/notificacoes/marcar-todas">
+        <form novalidate method="post" action="<?= URL_BASE ?>/notificacoes/marcar-todas">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <button class="btn btn-outline-primary">Marcar todas como lidas</button>
         </form>
@@ -61,7 +61,7 @@
                                 <?php endif; ?>
 
                                 <?php if (!$notificacao['lida']): ?>
-                                    <form method="post" action="<?= URL_BASE ?>/notificacoes/marcar-lida">
+                                    <form novalidate method="post" action="<?= URL_BASE ?>/notificacoes/marcar-lida">
                                         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
                                         <input type="hidden" name="id" value="<?= (int) $notificacao['id'] ?>">
                                         <button class="btn btn-sm btn-light">Marcar como lida</button>

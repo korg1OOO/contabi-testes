@@ -41,7 +41,7 @@
                                 <td class="px-4 py-3 align-middle"><?= htmlspecialchars($c['cpf_cnpj'] ?? '') ?></td>
                                 <td class="px-4 py-3 align-middle text-end">
                                     <a href="<?= URL_BASE ?>/clientes/editar?id=<?= $c['id'] ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
-                                    <form method="post" action="<?= URL_BASE ?>/clientes/excluir" class="d-inline" onsubmit="return confirm('Excluir cliente?')"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>"><button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+                                    <form novalidate method="post" action="<?= URL_BASE ?>/clientes/excluir" class="d-inline" onsubmit="return confirm('Excluir cliente?')"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>"><input type="hidden" name="id" value="<?= $c['id'] ?>"><button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

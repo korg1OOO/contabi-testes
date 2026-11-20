@@ -24,15 +24,15 @@
                     <?php require __DIR__ . '/../partials/alertas.php'; ?>
                     <p>Esta operação excluirá sua conta e os dados vinculados à sua carteira, incluindo clientes, marcas, patentes, prazos, documentos, notificações e relatórios automáticos.</p>
                     <p class="fw-semibold text-danger">A operação não pode ser desfeita.</p>
-                    <form method="POST" action="<?= URL_BASE ?>/minha-conta/excluir-dados">
+                    <form novalidate method="POST" action="<?= URL_BASE ?>/minha-conta/excluir-dados">
                         <input type="hidden" name="csrf_token" value="<?= $this->csrfToken() ?>">
                         <div class="mb-3">
                             <label class="form-label">Senha atual</label>
-                            <input type="password" name="senha" class="form-control" required>
+                            <input type="password" name="senha" class="form-control">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Digite EXCLUIR para confirmar</label>
-                            <input type="text" name="confirmacao" class="form-control" required autocomplete="off">
+                            <input type="text" name="confirmacao" class="form-control" autocomplete="off">
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="<?= URL_BASE ?>/dashboard" class="btn btn-outline-secondary">Cancelar</a>

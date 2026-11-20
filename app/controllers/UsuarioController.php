@@ -66,7 +66,8 @@ class UsuarioController extends Controller
         $perfisPermitidos = ['administrador', 'consultor', 'agente_pi'];
 
         if (empty($nome)) $erros['nome'] = 'Nome é obrigatório';
-        if (!Validador::cpfValido($cpf)) $erros['cpf'] = 'CPF inválido';
+        if ($cpf === '') $erros['cpf'] = 'CPF é obrigatório';
+        elseif (!Validador::cpfValido($cpf)) $erros['cpf'] = 'CPF inválido';
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros['email'] = 'E-mail inválido';
         if (empty($senha)) $erros['senha'] = 'Senha é obrigatória';
         if (!in_array($perfil, $perfisPermitidos, true)) $erros['perfil'] = 'Perfil inválido';
@@ -159,6 +160,26 @@ class UsuarioController extends Controller
             return;
         }
 
+        $erros = [];
+        if ($nome === '') $erros['nome'] = 'Nome é obrigatório';
+        if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros['email'] = 'E-mail inválido';
+        if (!in_array($perfil, ['administrador', 'consultor', 'agente_pi'], true)) $erros['perfil'] = 'Perfil inválido';
+
+        if ($erros) {
+            $this->view('usuarios/usuario_edit', [
+                'erros' => $erros,
+                'usuario' => [
+                    'id' => $id,
+                    'nome' => $nome,
+                    'cpf' => $usuarioAtual->getCpf(),
+                    'email' => $email,
+                    'telefone' => $telefone,
+                    'perfil' => $perfil
+                ]
+            ]);
+            return;
+        }
+
         $usuario = new Usuario($id, $nome, $usuarioAtual->getCpf(), $email ?: null, $telefone ?: null, '', $perfil);
 
         $this->repository->update($usuario);
@@ -215,8 +236,11 @@ class UsuarioController extends Controller
         $this->validarCsrf();
         $senha = $_POST['senha'] ?? '';
         $confirmacao = trim($_POST['confirmacao'] ?? '');
-        if ($confirmacao !== 'EXCLUIR') {
-            $this->view('usuarios/excluir_dados', ['erro' => 'Digite EXCLUIR para confirmar a operação.']);
+        $erros = [];
+        if ($senha === '') $erros['senha'] = 'Informe sua senha.';
+        if ($confirmacao !== 'EXCLUIR') $erros['confirmacao'] = 'Digite EXCLUIR para confirmar a operação.';
+        if ($erros) {
+            $this->view('usuarios/excluir_dados', ['erros' => $erros]);
             return;
         }
         try {
@@ -246,7 +270,8 @@ class UsuarioController extends Controller
         $senha    = $_POST['senha'] ?? '';
 
         if (empty($nome)) $erros['nome'] = 'Nome é obrigatório';
-        if (!Validador::cpfValido($cpf)) $erros['cpf'] = 'CPF inválido';
+        if ($cpf === '') $erros['cpf'] = 'CPF é obrigatório';
+        elseif (!Validador::cpfValido($cpf)) $erros['cpf'] = 'CPF inválido';
         if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) $erros['email'] = 'E-mail inválido';
         if (empty($senha)) $erros['senha'] = 'Senha é obrigatória';
 

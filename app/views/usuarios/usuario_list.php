@@ -160,7 +160,7 @@ $abaInicial = isset($_GET['desativado']) ? 'desativados' : 'ativos';
                                                     >
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
-                                                    <form
+                                                    <form novalidate
                                                         action="<?= URL_BASE ?>/usuarios/<?= $aba['rota'] ?>"
                                                         method="post"
                                                         class="d-inline"

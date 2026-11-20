@@ -23,7 +23,7 @@
 
     <div class="card col-lg-8">
         <div class="card-body p-4">
-            <form action="<?= URL_BASE ?>/marcas/atualizar" method="post">
+            <form novalidate action="<?= URL_BASE ?>/marcas/atualizar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '') ?>">
                 <?php require __DIR__ . '/../partials/alertas.php'; ?>
                 <input type="hidden" name="id" value="<?= $marca['id'] ?>">
@@ -32,16 +32,16 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nº Processo INPI</label>
-                        <input type="text" name="numero_processo" class="form-control <?= isset($erros['numero_processo']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($marca['numero_processo']) ?>" maxlength="30" required>
+                        <input type="text" name="numero_processo" class="form-control <?= isset($erros['numero_processo']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($marca['numero_processo']) ?>" maxlength="30">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Titular</label>
-                        <input type="text" name="titular" class="form-control <?= isset($erros['titular']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($marca['titular']) ?>" maxlength="200" required>
+                        <input type="text" name="titular" class="form-control <?= isset($erros['titular']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($marca['titular']) ?>" maxlength="200">
                     </div>
 
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Classe Nice</label>
-                        <input type="number" name="classe_nice" class="form-control <?= isset($erros['classe_nice']) ? 'is-invalid' : '' ?>" value="<?= $marca['classe_nice'] ?>" min="1" max="45" required>
+                        <input type="number" name="classe_nice" class="form-control <?= isset($erros['classe_nice']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars((string)(($marca['classe_nice'] ?? '') ?: ''), ENT_QUOTES, 'UTF-8') ?>" min="1" max="45">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Apresentação</label>
@@ -62,35 +62,35 @@
 
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Data de Depósito</label>
-                        <input type="text" name="data_deposito" class="form-control <?= isset($erros['data_deposito']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_deposito'] ?? null), ENT_QUOTES, 'UTF-8') ?>" required>
+                        <input type="text" name="data_deposito" class="form-control <?= isset($erros['data_deposito']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_deposito'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Data de Concessão</label>
-                        <input type="text" name="data_concessao" class="form-control <?= isset($erros['data_concessao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_concessao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_concessao" class="form-control <?= isset($erros['data_concessao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_concessao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Data de Vencimento</label>
-                        <input type="text" name="data_vencimento" class="form-control <?= isset($erros['data_vencimento']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_vencimento'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_vencimento" class="form-control <?= isset($erros['data_vencimento']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_vencimento'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Próxima Anuidade</label>
-                        <input type="text" name="data_proxima_anuidade" class="form-control <?= isset($erros['data_proxima_anuidade']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_proxima_anuidade'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_proxima_anuidade" class="form-control <?= isset($erros['data_proxima_anuidade']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_proxima_anuidade'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Renovação</label>
-                        <input type="text" name="data_renovacao" class="form-control <?= isset($erros['data_renovacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_renovacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_renovacao" class="form-control <?= isset($erros['data_renovacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_renovacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Oposição</label>
-                        <input type="text" name="data_oposicao" class="form-control <?= isset($erros['data_oposicao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_oposicao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_oposicao" class="form-control <?= isset($erros['data_oposicao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_oposicao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Prorrogação</label>
-                        <input type="text" name="data_prorrogacao" class="form-control <?= isset($erros['data_prorrogacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_prorrogacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_prorrogacao" class="form-control <?= isset($erros['data_prorrogacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_prorrogacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Manifestação</label>
-                        <input type="text" name="data_manifestacao" class="form-control <?= isset($erros['data_manifestacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_manifestacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
+                        <input type="text" name="data_manifestacao" class="form-control <?= isset($erros['data_manifestacao']) ? 'is-invalid' : '' ?>" placeholder="dd/mm/aaaa" maxlength="10" value="<?= htmlspecialchars(\app\helpers\Validador::dataParaExibicao($marca['data_manifestacao'] ?? null), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
                 </div>
 

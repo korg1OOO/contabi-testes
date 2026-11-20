@@ -31,15 +31,15 @@
 
     <div class="card mb-4">
         <div class="card-body">
-            <form method="GET" action="<?= URL_BASE ?>/busca/colisoes">
+            <form novalidate method="GET" action="<?= URL_BASE ?>/busca/colisoes">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nome ou palavra da marca</label>
-                        <input type="text" name="termo" class="form-control" value="<?= htmlspecialchars($termo ?? '') ?>" required>
+                        <input type="text" name="termo" class="form-control" value="<?= htmlspecialchars($termo ?? '') ?>">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label fw-semibold">Classe Nice</label>
-                        <select name="classe_nice" class="form-select" required>
+                        <select name="classe_nice" class="form-select">
                             <option value="">Selecione</option>
                             <?php for ($i = 1; $i <= 45; $i++): ?>
                                 <option value="<?= $i ?>" <?= (int)($classe_nice ?? 0) === $i ? 'selected' : '' ?>>Classe <?= $i ?></option>

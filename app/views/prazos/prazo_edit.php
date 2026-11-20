@@ -71,7 +71,7 @@
     <div class="card">
         <div class="card-body p-4">
 
-            <form
+            <form novalidate
                 method="post"
                 action="<?= URL_BASE ?>/prazos/atualizar"
                 class="row g-3"
@@ -101,7 +101,6 @@
                         name="ativo"
                         id="prazo-ativo"
                         class="form-select"
-                        required
                     >
                         <?php foreach ($ativos as $ativo): ?>
 
@@ -149,7 +148,6 @@
                         name="tipo"
                         id="prazo-tipo"
                         class="form-select <?= isset($erros['tipo']) ? 'is-invalid' : '' ?>"
-                        required
                     >
                         <option value="">Selecione um tipo de prazo</option>
                         <?php foreach ([
@@ -201,8 +199,6 @@
                         placeholder="dd/mm/aaaa"
                         maxlength="10"
                         inputmode="numeric"
-                        pattern="\d{2}/\d{2}/\d{4}"
-                        required
                     >
                 </div>
 

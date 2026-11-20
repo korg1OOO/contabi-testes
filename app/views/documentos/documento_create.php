@@ -18,16 +18,19 @@
     <div class="topbar"><span class="page-title">Novo documento</span></div>
     <div class="card"><div class="card-body p-4">
         <?php
-        if (isset($_GET['erro'])) {
+        if (!empty($_SESSION['erro_documento'])) {
+            $erro = $_SESSION['erro_documento'];
+            unset($_SESSION['erro_documento']);
+        } elseif (isset($_GET['erro'])) {
             $erro = 'Não foi possível enviar o arquivo.';
         }
         require __DIR__ . '/../partials/alertas.php';
         ?>
-        <form method="post" action="<?= URL_BASE ?>/documentos/salvar" enctype="multipart/form-data" class="row g-3">
+        <form novalidate method="post" action="<?= URL_BASE ?>/documentos/salvar" enctype="multipart/form-data" class="row g-3">
             <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token) ?>">
             <div class="col-md-6">
                 <label class="form-label">Arquivo</label>
-                <input type="file" name="arquivo" class="form-control" required>
+                <input type="file" name="arquivo" class="form-control">
             </div>
             <div class="col-md-6">
                 <label class="form-label">Tipo</label>

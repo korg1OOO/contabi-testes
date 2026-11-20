@@ -25,19 +25,19 @@
 
     <div class="card col-lg-8">
         <div class="card-body p-4">
-            <form action="<?= URL_BASE ?>/usuarios/salvar" method="post">
+            <form novalidate action="<?= URL_BASE ?>/usuarios/salvar" method="post">
                 <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf_token ?? '', ENT_QUOTES, 'UTF-8') ?>">
                 <?php require __DIR__ . '/../partials/alertas.php'; ?>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Nome Completo</label>
-                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['nome'] ?? '') ?>" required>
+                        <input type="text" name="nome" class="form-control <?= isset($erros['nome']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['nome'] ?? '') ?>">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">CPF</label>
                         <input type="text" name="cpf" class="form-control <?= isset($erros['cpf']) ? 'is-invalid' : '' ?>" value="<?= htmlspecialchars($old['cpf'] ?? '') ?>" 
-                               maxlength="14" oninput="mascaraCPF(this)" required>
+                               maxlength="14" oninput="mascaraCPF(this)">
                     </div>
 
                     <div class="col-md-6">
@@ -52,12 +52,12 @@
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Senha</label>
-                        <input type="password" name="senha" class="form-control <?= isset($erros['senha']) ? 'is-invalid' : '' ?>" required>
+                        <input type="password" name="senha" class="form-control <?= isset($erros['senha']) ? 'is-invalid' : '' ?>">
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Perfil</label>
-                        <select name="perfil" class="form-select <?= isset($erros['perfil']) ? 'is-invalid' : '' ?>" required>
+                        <select name="perfil" class="form-select <?= isset($erros['perfil']) ? 'is-invalid' : '' ?>">
                             <option value="consultor" <?= (($old['perfil'] ?? 'consultor') === 'consultor') ? 'selected' : '' ?>>Consultor</option>
                             <option value="agente_pi" <?= (($old['perfil'] ?? '') === 'agente_pi') ? 'selected' : '' ?>>Agente de PI</option>
                             <option value="administrador" <?= (($old['perfil'] ?? '') === 'administrador') ? 'selected' : '' ?>>Administrador</option>
