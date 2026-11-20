@@ -13,7 +13,6 @@ Contas de acesso:
 | Perfil | CPF | Senha |
 | --- | --- | --- |
 | Administrador (adm) | `00000000000` | `Admin@123` |
-| Conta comum | `12345678901` | `Consultor@123` |
 
 ## Para rodar localmente
 
@@ -125,12 +124,6 @@ Para `http://localhost:8080`:
 php -S localhost:8080 -t public public/index.php
 ```
 
-Para a configuração local atual desta máquina, que usa `http://localhost:1644`:
-
-```bash
-php -S localhost:1644 -t public public/index.php
-```
-
 Deixe o terminal aberto enquanto usar o sistema. Acesse no navegador o mesmo endereço configurado, por exemplo `http://localhost:1644`.
 
 #### 7. Entre no sistema
@@ -140,7 +133,6 @@ O banco inicial inclui contas de demonstração. Use uma delas para acessar a te
 | Perfil | CPF | Senha |
 | --- | --- | --- |
 | Administrador | `00000000000` | `Admin@123` |
-| Consultor | `12345678901` | `Consultor@123` |
 
 Essas contas são apenas para desenvolvimento local. Troque as senhas se for manter dados reais no ambiente.
 

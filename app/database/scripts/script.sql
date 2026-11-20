@@ -227,11 +227,6 @@ INSERT IGNORE INTO usuarios (nome, cpf, email, telefone, senha, perfil, ativo) V
 ('Admin Contabi', '00000000000', 'admin@contabi.com', '(45) 99999-0000', 
  '$2y$12$lqQXW24gr1PPn7wDJxTDbuC/BDtRwzmEqzDdnosxrctexS7RHRJYy', 'administrador', TRUE);
 
-/*Consultor (senha: Consultor@123)*/
-INSERT IGNORE INTO usuarios (nome, cpf, email, telefone, senha, perfil, ativo) VALUES
-('Enzo Feldman', '12345678901', 'enzo@contabi.com', '(45) 99988-7766', 
- '$2y$12$dRSiLHGuUW9V4uxNO6OyJ.g9tLedFWHgA75zv60gbCnHBElTsJbbe', 'consultor', TRUE);
-
 INSERT INTO classes_nice (classe, descricao) VALUES
 (1, 'Produtos químicos para uso industrial, científico e fotográfico, bem como para agricultura, horticultura e silvicultura; resinas artificiais não processadas, plásticos não processados; adubos; composições extintoras de incêndio; preparações para temperar e soldar metais; substâncias químicas para preservar alimentos; matérias tanantes; adesivos (colas) para uso industrial'),
 (2, 'Tintas, vernizes, lacas; preservativos contra a ferrugem e contra a deterioração da madeira; corantes; mordentes; resinas naturais em estado bruto; metais em folhas e em pó para pintores, decoradores, impressores e artistas'),
